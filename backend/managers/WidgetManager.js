@@ -332,8 +332,9 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
     logger.info('-playRemote- runCliBootstrapCommand, executionDownloadsPath:', curryParams.executionDownloadsPath,'recipeRootPath:', curryParams.widget.recipeRootPath);
 
     var installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath);
+    var installTimeout = curryParams.widget.installTimeout;
 
-    logger.info('-playRemote waterfall- installTimeout:', curryParams.widget.installTimeout );
+    logger.info('-playRemote waterfall- installTimeout:', installTimeout );
 
     logger.info('-playRemote waterfall- runCliBootstrapCommand, JOIN:', installPath );
     installPath = handlePathSeparators( installPath );
@@ -345,7 +346,7 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
             ';',
             curryParams.widget.recipeType.installCommand,
             '-timeout',
-            '60',/*minutes, TODO set value from widget configuration */
+            installTimeout,
             installPath
         ],
         logsDir: curryParams.executionLogsPath,
