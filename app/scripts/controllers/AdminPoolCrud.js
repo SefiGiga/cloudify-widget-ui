@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('AdminPoolCrudCtrl', function ($scope, $log, $routeParams, $interval, AdminPoolCrudService) {
+    .controller('AdminPoolCrudCtrl', function ($scope, $log, $routeParams, $interval, AdminPoolCrudService, $rootScope) {
 
         $scope.model = {
             accountId: $routeParams.accountId,
@@ -131,6 +131,30 @@ angular.module('cloudifyWidgetUiApp')
             });
         };
 
+        $scope.getPoolDecisions = function (poolId) {
+            $log.debug('getPoolDecisions, poolId: ', poolId);
+            AdminPoolCrudService.getPoolDecisions(poolId).then(function (result) {
+                $scope.model.poolDecisions = result.data;
+            });
+        };
+
+        $scope.abortPoolDecision = function (poolId, decisionId) {
+            $log.info('abortPoolDecision, poolId: ', poolId, ', decisionId: ', decisionId);
+            AdminPoolCrudService.abortPoolDecision(poolId, decisionId).then(function (result) {
+                $log.info('decision abort finished, result: ', result);
+            });
+        };
+
+        $scope.updatePoolDecisionApproval = function (poolId, decision) {
+            $log.info('updatePoolDecision, poolId: ', poolId, ', decisionId: ', decision.id);
+            AdminPoolCrudService.updatePoolDecisionApproval(poolId, decision).then(
+                function (result) {
+                    $log.info('pool decision approval updated, refreshing all decisions');
+                    $scope.getPoolDecisions(poolId);
+                }, function (err) {
+                    $log.error(err);
+                });
+        };
 
 
         $scope.asJson = function (jsonString) {
@@ -138,9 +162,14 @@ angular.module('cloudifyWidgetUiApp')
         };
 
 
-
         var refreshInterval = $interval(function () {
+
             // TODO create child controllers and separate behaviors so we wouldn't have to call every getter
+
+            if (!$rootScope.autoRefresh) {
+                return;
+            }
+
 //            $scope.getUsers();
 //            $scope.getPools();
             $log.debug('- - - refresh interval - - -');
@@ -150,6 +179,7 @@ angular.module('cloudifyWidgetUiApp')
                 $scope.getPoolNodes($scope.model.poolId);
                 $scope.getPoolTasks($scope.model.poolId);
                 $scope.getPoolErrors($scope.model.poolId);
+                $scope.getPoolDecisions($scope.model.poolId);
             }
             if (angular.isDefined($scope.model.accountId)) {
                 $scope.getAccountPools($scope.model.accountId);

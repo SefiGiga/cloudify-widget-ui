@@ -73,6 +73,18 @@ angular.module('cloudifyWidgetUiApp')
                 return $http.get('/backend/admin/pools/' + poolId + '/cloud/nodes');
             };
 
+            this.getPoolDecisions = function (poolId) {
+                return $http.get('/backend/admin/pools/' + poolId + '/decisions');
+            };
+
+            this.abortPoolDecision = function (poolId, decisionId) {
+                return $http.post('/backend/admin/pools/' + poolId + '/decisions/' + decisionId + '/abort');
+            };
+
+            this.updatePoolDecisionApproval = function (poolId, decision) {
+                return $http.post('/backend/admin/pools/' + poolId + '/decisions/' + decision.id + '/approved/' + decision.approved);
+            };
+
         }
 
         return new AdminPoolCrudService();
