@@ -16,11 +16,12 @@ function _callback( res, callback ){
     }
 }
 
-exports.createUsers = function( req, res ){
+exports.createAccount = function( req, res ){
     managers.poolClient.createAccount(req.user.poolKey, _callback(res));
 };
 
-exports.readUsers = function (req, res) {
+exports.readAccounts = function (req, res) {
+    logger.info('getting all accounts');
     managers.poolClient.readAccounts(req.user.poolKey, _callback(res));
 };
 
@@ -32,8 +33,16 @@ exports.adminReadAccountPools = function( req, res ){
     managers.poolClient.adminReadAccountPools(req.user.poolKey, req.params.accountId, _callback(res));
 };
 
+exports.adminSetAccountDescription = function( req, res ){
+    if ( !req.body || !req.body.description ){
+        res.send(500, {'message' : 'description is not set'});
+    }
+    managers.poolClient.setAccountDescription( req.user.poolKey, req.params.accountId, req.body.description, _callback(res) );
+};
+
 
 exports.createAccountPools = function( req, res ){
+
     managers.poolClient.createAccountPools(req.user.poolKey, req.params.accountId, req.body, _callback(res));
 };
 

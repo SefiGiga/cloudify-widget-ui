@@ -56,6 +56,7 @@ app.use('/backend/admin', middleware.session.adminUser);
 
 
 
+
 //app.use(function( err ){
 //    logger.error('using error handler', err);
 //});
@@ -78,16 +79,25 @@ app.get('/backend/user/widgets/:widgetId/executions/:executionId/output', contro
 // a route to check if user logged in. relies on middleware to do the actual verification.
 app.get('/backend/user/loggedIn', function(req, res){ res.send(managers.users.getPublicUserDetails( req.user ) );} );
 
+app.get('/backend/admin/myUser', function(req, res){ res.send(req.user)});
+app.post('/backend/admin/myUser/setPoolKey', controllers.adminUsers.setAdminPoolKey);
+app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAdminPoolKey);
 //app.get('/backend/admin/users', function(req, res){ res.send('hello world!')});
-app.get('/backend/admin/users', controllers.pool.readUsers);
-app.post('/backend/admin/users', controllers.pool.createUsers);
+//app.get('/backend/admin/users', controllers.pool.readUsers);
+app.get('/backend/admin/users', controllers.adminUsers.getAllUsers);
+app.post('/backend/admin/users/:userId/setPoolKey', controllers.adminUsers.loadUser, controllers.adminUsers.setPoolKey);
+app.post('/backend/admin/users/:userId/removePoolKey', controllers.adminUsers.loadUser, controllers.adminUsers.removePoolKey);
+
 app.get('/backend/admin/pools', controllers.pool.adminReadPools);
 
+app.get('/backend/admin/accounts', controllers.pool.readAccounts);
+app.post('/backend/admin/accounts', controllers.pool.createAccount);
 app.get('/backend/admin/accounts/:accountId/pools', controllers.pool.adminReadAccountPools);
 app.post('/backend/admin/accounts/:accountId/pools', controllers.pool.createAccountPools);
 app.post('/backend/admin/accounts/:accountId/pools/:poolId', controllers.pool.updateAccountPools);
 app.post('/backend/admin/accounts/:accountId/pools/:poolId/delete', controllers.pool.deleteAccountPools);
 app.get('/backend/admin/accounts/:accountId/pools/:poolId', controllers.pool.adminReadAccountPool);
+app.post('/backend/admin/accounts/:accountId/description', controllers.pool.adminSetAccountDescription);
 
 app.get('/backend/admin/pools/status', controllers.pool.readPoolsStatus);
 app.get('/backend/admin/pools/:poolId/status', controllers.pool.readPoolStatus);

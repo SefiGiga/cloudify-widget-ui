@@ -34,6 +34,13 @@ function Call() {
     function _callbackWrapper(callback) {
         return function (data, response) {
             if (response.statusCode == 200) {
+                if ( typeof(data) == 'string'){
+                    try {
+                        data = JSON.parse( data );
+                    }catch(e){
+                        logger.error('unable to parse JSON',data);
+                    }
+                }
                 callback(null, data);
             } else {
                 logger.info('got an error from rest client', response.statusCode);
@@ -170,10 +177,23 @@ exports.adminReadAccountPools = function (poolKey, accountId, callback) {
     call.get('/admin/accounts/${accountId}/pools', _args().poolKey(poolKey).accountId(accountId), callback);
 };
 
+exports.readByUuid = function( poolKey, uuid, callback ){
+    logger.info('getting account by uuid : ' + uuid);
+    call.get('/admin/accounts/byUuid/' + uuid, _args().poolKey(poolKey).path( { 'uuid' : uuid } ), callback);
+};
+
+exports.setAccountDescription = function ( poolKey, accountId, description, callback ){
+    logger.info('setting description to account : ' + accountId );
+    call.post('/admin/accounts/${accountId}/description', _args().poolKey(poolKey).accountId(accountId).data(description), callback);
+};
+
 exports.createAccountPools = function (poolKey, accountId, poolSettings, callback) {
     logger.info('creating new pool for account ::' + accountId);
+    logger.info('pool settings is : ' + poolSettings );
     call.post('/admin/accounts/${accountId}/pools', _args().poolKey(poolKey).accountId(accountId).data(poolSettings), callback);
 };
+
+
 
 exports.updateAccountPools = function (poolKey, accountId, poolId, poolSettings, callback) {
     logger.info('updating account [%s] pool [%s] ', accountId, poolId);

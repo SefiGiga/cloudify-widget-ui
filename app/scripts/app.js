@@ -73,7 +73,16 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
             })
             .when('/admin/users', {
                 templateUrl: 'views/admin/users.html',
-                controller: 'AdminPoolCrudCtrl'
+                controller: 'AdminUsersIndexCtrl'
+//                controller: 'AdminPoolCrudCtrl'
+            })
+            .when('/admin/myUser', {
+                templateUrl: 'views/admin/myUser.html',
+                controller: 'AdminMyUserCtrl'
+            })
+            .when('/admin/users/:userId/edit', {
+                templateUrl: 'views/admin/users/edit.html',
+                controller: 'AdminUsersEditCtrl'
             })
             .when('/admin/pools/status', {
                 templateUrl: 'views/admin/poolsStatus.html',
