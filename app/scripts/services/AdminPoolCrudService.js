@@ -37,6 +37,10 @@ angular.module('cloudifyWidgetUiApp')
                 return $http.post('/backend/admin/accounts/' + accountId + '/pools/' + poolId + '/delete');
             };
 
+            this.cleanAccountPool = function (accountId, poolId) {
+                return $http.post('/backend/admin/accounts/' + accountId + '/pools/' + poolId + '/clean');
+            };
+
             this.getPoolStatus = function (poolId) {
                 return $http.get('/backend/admin/pools/' + poolId + '/status');
             };
@@ -61,6 +65,10 @@ angular.module('cloudifyWidgetUiApp')
                 return $http.post('/backend/admin/pools/' + poolId + '/nodes/' + nodeId + '/bootstrap');
             };
 
+            this.deletePoolErrors = function (poolId) {
+                return $http.post('/backend/admin/pools/' + poolId + '/errors/delete');
+            };
+
             this.getPoolErrors = function (poolId) {
                 return $http.get('/backend/admin/pools/' + poolId + '/errors');
             };
@@ -71,6 +79,18 @@ angular.module('cloudifyWidgetUiApp')
 
             this.getCloudNodes = function (poolId) {
                 return $http.get('/backend/admin/pools/' + poolId + '/cloud/nodes');
+            };
+
+            this.getPoolDecisions = function (poolId) {
+                return $http.get('/backend/admin/pools/' + poolId + '/decisions');
+            };
+
+            this.abortPoolDecision = function (poolId, decisionId) {
+                return $http.post('/backend/admin/pools/' + poolId + '/decisions/' + decisionId + '/abort');
+            };
+
+            this.updatePoolDecisionApproval = function (poolId, decision) {
+                return $http.post('/backend/admin/pools/' + poolId + '/decisions/' + decision.id + '/approved/' + decision.approved);
             };
 
         }

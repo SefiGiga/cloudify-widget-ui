@@ -22,16 +22,15 @@ exports.play = function (widgetId, poolKey, playCallback) {
             },
             _getWidget,
             _createExecutionModel,
-            _updateExecutionModel,
+            _updateExecutionModelAddPaths,
             _downloadRecipe,
             _occupyMachine,
+            _updateExecutionModelAddNodeModel,
             _runInstallCommand
         ],
 
         _playFinally
     );
-
-
 };
 
 
@@ -52,7 +51,7 @@ exports.playRemote = function (widgetId, poolKey, advancedParams, playCallback) 
             },
             _getWidget,
             _createExecutionModel,
-            _updateExecutionModel,
+            _updateExecutionModelAddPaths,
             _downloadRecipe,
             _copyCloudFolder,
             _overrideCloudPropertiesFile,
@@ -63,8 +62,30 @@ exports.playRemote = function (widgetId, poolKey, advancedParams, playCallback) 
     );
 };
 
-exports.stop = function (executionId, callback) {
-    _removeExecutionModel(executionId, callback);
+exports.stop = function (widgetId, poolKey, executionId, remote, stopCallback) {
+
+    var tasks = [
+
+        function initCurryParams(callback) {
+            var initialCurryParams = {
+                widgetId: widgetId,
+                executionId: executionId,
+                poolKey: poolKey,
+                stopCallback: stopCallback
+            };
+            callback(null, initialCurryParams);
+        },
+        _getExecutionModel,
+        _waterfallRemoveExecutionModel
+    ];
+
+    // if execution is not on a remote machine, the node is in the pool - add a task to expire it
+    !remote && tasks.push(_expireNode);
+
+    async.waterfall(
+        tasks,
+        _stopFinally
+    );
 };
 
 exports.getStatus = function (executionId, callback) {
@@ -147,21 +168,33 @@ function _createExecutionModel(curryParams, curryCallback) {
     });
 }
 
-function _updateExecutionModel(curryParams, curryCallback) {
-    logger.trace('-play- updateExecutionModel');
+function _updateExecutionModelAddPaths(curryParams, curryCallback) {
+    logger.trace('-play- updateExecutionModelAddPath');
 
-    logger.info('execution ObjectId is [%s]', curryParams);
-    // now that we have an auto generated model id, insert new fields based on it
+    curryParams.executionDownloadsPath = path.join(conf.downloadsDir, curryParams.executionObjectId.toHexString());
+    curryParams.executionLogsPath = path.join(conf.logsDir, curryParams.executionObjectId.toHexString());
+
+    _updateExecutionModel({
+        downloadsPath: curryParams.executionDownloadsPath,
+        logsPath: curryParams.executionLogsPath
+    }, curryParams, curryCallback);
+}
+
+function _updateExecutionModelAddNodeModel(curryParams, curryCallback) {
+    logger.trace('-play- updateExecutionModelAddNodeModel');
+
+    _updateExecutionModel({
+        nodeModel: curryParams.nodeModel
+    }, curryParams, curryCallback);
+}
+
+function _updateExecutionModel(data, curryParams, curryCallback) {
+
     managers.db.connect('widgetExecutions', function (db, collection, done) {
-        curryParams.executionDownloadsPath = path.join(conf.downloadsDir, curryParams.executionObjectId.toHexString());
-        curryParams.executionLogsPath = path.join(conf.logsDir, curryParams.executionObjectId.toHexString());
         collection.update(
             { _id: curryParams.executionObjectId },
             {
-                $set: {
-                    downloadsPath: curryParams.executionDownloadsPath,
-                    logsPath: curryParams.executionLogsPath
-                }
+                $set: data
             },
             function (err, nUpdated) {
                 if (!!err) {
@@ -200,11 +233,15 @@ function _downloadRecipe(curryParams, curryCallback) {
 function _occupyMachine(curryParams, curryCallback) {
     logger.trace('-play- occupyMachine');
 
-    managers.poolClient.occupyPoolNode(curryParams.poolKey, curryParams.widget.poolId, function (err, result) {
+    // TODO better defense
+    var expires = Date.now() + (curryParams.widget.installTimeout * 60 * 1000);
+    logger.info('installation will expire within [%s] minutes - at [%s], or [%s] epoch time', curryParams.widget.installTimeout, Date(expires), expires);
+
+    managers.poolClient.occupyPoolNode(curryParams.poolKey, curryParams.widget.poolId, expires, function (err, result) {
 
         if (!!err) {
             logger.error('occupy node failed');
-            curryCallback(new Error('failed to occupy node'), curryParams);
+            curryCallback(err, curryParams);
             return;
         }
 
@@ -227,13 +264,22 @@ function _occupyMachine(curryParams, curryCallback) {
 function _runInstallCommand(curryParams, curryCallback) {
     logger.trace('-play- runInstallCommand');
 
+    var installPath;
+    try {
+        installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath);
+    } catch (e) {
+        curryCallback(new Error('failed while joining install path, one or more of the parameters is not a string: ['
+            + curryParams.executionDownloadsPath + '] [' + curryParams.widget.recipeRootPath + ']'), curryParams);
+        return;
+    }
+
     var command = {
         arguments: [
             'connect',
             curryParams.nodeModel.machineSshDetails.publicIp,
             ';',
             curryParams.widget.recipeType.installCommand,
-            path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath)
+            installPath
         ],
         logsDir: curryParams.executionLogsPath,
         executionId: curryParams.executionObjectId.toHexString()
@@ -332,8 +378,9 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
     logger.info('-playRemote- runCliBootstrapCommand, executionDownloadsPath:', curryParams.executionDownloadsPath,'recipeRootPath:', curryParams.widget.recipeRootPath);
 
     var installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath);
+    var installTimeout = curryParams.widget.installTimeout;
 
-    logger.info('-playRemote waterfall- installTimeout:', curryParams.widget.installTimeout );
+    logger.info('-playRemote waterfall- installTimeout:', installTimeout );
 
     logger.info('-playRemote waterfall- runCliBootstrapCommand, JOIN:', installPath );
     installPath = handlePathSeparators( installPath );
@@ -345,7 +392,7 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
             ';',
             curryParams.widget.recipeType.installCommand,
             '-timeout',
-            '60',/*minutes, TODO set value from widget configuration */
+            installTimeout,
             installPath
         ],
         logsDir: curryParams.executionLogsPath,
@@ -371,6 +418,69 @@ function _playFinally(err, curryParams) {
     }
 
     curryParams.playCallback(null, curryParams.executionObjectId.toHexString());
+}
+
+function _getExecutionModel(curryParams, curryCallback) {
+
+    managers.db.connect('widgetExecutions', function (db, collection, done) {
+        collection.findOne({_id: managers.db.toObjectId(curryParams.executionId)}, function (err, result) {
+
+            if (!!err) {
+                curryCallback(err, curryParams);
+                done();
+                return;
+            }
+
+            if (!result) {
+                curryCallback(new Error('could not find execution model'), curryParams);
+                done();
+                return;
+            }
+
+            curryParams.executionModel = result;
+            curryCallback(null, curryParams);
+            done();
+        });
+    });
+}
+
+function _expireNode(curryParams, curryCallback) {
+
+    managers.poolClient.expirePoolNode(curryParams.poolKey, curryParams.executionModel.poolId, curryParams.executionModel.nodeModel.id, function (err/*, result*/) {
+
+        if (!!err) {
+            curryCallback(err, curryParams);
+            return;
+        }
+
+        curryCallback(null, curryParams);
+    });
+}
+
+function _waterfallRemoveExecutionModel(curryParams, curryCallback) {
+
+    _removeExecutionModel(curryParams.executionId, function (err/*, result*/) {
+
+        if (!!err) {
+            curryCallback(err, curryParams);
+            return;
+        }
+
+        curryCallback(null, curryParams);
+    });
+}
+
+function _stopFinally(err, curryParams) {
+    logger.trace('-stop- finished !');
+    logger.info('result is ', curryParams);
+
+    if (!!err) {
+        logger.error('failed to stop widget with id [%s]', curryParams.widgetId);
+        curryParams.stopCallback(err);
+        return;
+    }
+
+    curryParams.stopCallback(null, {});
 }
 
 

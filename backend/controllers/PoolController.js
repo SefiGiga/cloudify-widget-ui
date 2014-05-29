@@ -16,12 +16,11 @@ function _callback( res, callback ){
     }
 }
 
-exports.createAccount = function( req, res ){
+exports.createUsers = function( req, res ){
     managers.poolClient.createAccount(req.user.poolKey, _callback(res));
 };
 
-exports.readAccounts = function (req, res) {
-    logger.info('getting all accounts');
+exports.readUsers = function (req, res) {
     managers.poolClient.readAccounts(req.user.poolKey, _callback(res));
 };
 
@@ -40,18 +39,20 @@ exports.adminSetAccountDescription = function( req, res ){
     managers.poolClient.setAccountDescription( req.user.poolKey, req.params.accountId, req.body.description, _callback(res) );
 };
 
-
-exports.createAccountPools = function( req, res ){
-
-    managers.poolClient.createAccountPools(req.user.poolKey, req.params.accountId, req.body, _callback(res));
+exports.createAccountPool = function( req, res ){
+    managers.poolClient.createAccountPool(req.user.poolKey, req.params.accountId, req.body, _callback(res));
 };
 
-exports.updateAccountPools = function( req, res ){
-    managers.poolClient.updateAccountPools(req.user.poolKey, req.params.accountId, req.params.poolId, req.body, _callback(res));
+exports.updateAccountPool = function( req, res ){
+    managers.poolClient.updateAccountPool(req.user.poolKey, req.params.accountId, req.params.poolId, req.body, _callback(res));
 };
 
-exports.deleteAccountPools = function( req, res ){
-    managers.poolClient.deleteAccountPools(req.user.poolKey, req.params.accountId, req.params.poolId, _callback(res));
+exports.deleteAccountPool = function( req, res ){
+    managers.poolClient.deleteAccountPool(req.user.poolKey, req.params.accountId, req.params.poolId, _callback(res));
+};
+
+exports.cleanAccountPool = function( req, res ){
+    managers.poolClient.cleanAccountPool(req.user.poolKey, req.params.accountId, req.params.poolId, _callback(res));
 };
 
 exports.adminReadAccountPool = function( req, res ){
@@ -83,11 +84,24 @@ exports.bootstrapPoolNode = function( req, res ){
 exports.readPoolErrors = function( req, res ){
     managers.poolClient.readPoolErrors(req.user.poolKey, req.params.poolId, _callback(res));
 };
+exports.deletePoolErrors = function( req, res ){
+    managers.poolClient.deletePoolErrors(req.user.poolKey, req.params.poolId, _callback(res));
+};
 exports.readPoolTasks = function( req, res ){
     managers.poolClient.readPoolTasks(req.user.poolKey, req.params.poolId, _callback(res));
 };
 exports.deletePoolTask = function( req, res ){
     managers.poolClient.deletePoolTask(req.user.poolKey, req.params.poolId, req.params.taskId, _callback(res));
+};
+
+exports.readPoolDecisions = function( req, res ){
+    managers.poolClient.readPoolDecisions(req.user.poolKey, req.params.poolId, _callback(res));
+};
+exports.abortPoolDecision = function ( req, res ) {
+    managers.poolClient.abortPoolDecision(req.user.poolKey, req.params.poolId, req.params.decisionId, _callback(res));
+};
+exports.updatePoolDecisionApproval = function ( req, res ) {
+    managers.poolClient.updatePoolDecisionApproval(req.user.poolKey, req.params.poolId, req.params.decisionId, req.params.approved, _callback(res));
 };
 
 exports.readCloudNodes = function( req, res ){

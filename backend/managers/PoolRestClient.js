@@ -137,6 +137,16 @@ function ArgsBuilder() {
         return this;
     };
 
+    this.decisionId = function (_decisionId) {
+        this.path({"decisionId": _decisionId});
+        return this;
+    };
+
+    this.approved = function (_approved) {
+        this.path({"approved": _approved});
+        return this;
+    };
+
     this.widgetId = function (_widgetId) {
         this.path({"widgetId": _widgetId});
         return this;
@@ -187,26 +197,28 @@ exports.setAccountDescription = function ( poolKey, accountId, description, call
     call.post('/admin/accounts/${accountId}/description', _args().poolKey(poolKey).accountId(accountId).data(description), callback);
 };
 
-exports.createAccountPools = function (poolKey, accountId, poolSettings, callback) {
+exports.createAccountPool = function (poolKey, accountId, poolSettings, callback) {
     logger.info('creating new pool for account ::' + accountId);
-    logger.info('pool settings is : ' + poolSettings );
     call.post('/admin/accounts/${accountId}/pools', _args().poolKey(poolKey).accountId(accountId).data(poolSettings), callback);
 };
 
-
-
-exports.updateAccountPools = function (poolKey, accountId, poolId, poolSettings, callback) {
-    logger.info('updating account [%s] pool [%s] ', accountId, poolId);
+exports.updateAccountPool = function (poolKey, accountId, poolId, poolSettings, callback) {
+    logger.info('updating pool, account [%s] pool [%s] ', accountId, poolId);
     call.post('/admin/accounts/${accountId}/pools/${poolId}', _args().poolKey(poolKey).accountId(accountId).poolId(poolId).data(poolSettings), callback);
 };
 
-exports.deleteAccountPools = function (poolKey, accountId, poolId, callback) {
-    logger.info('deleting account [%s] pool [%s]', accountId, poolId);
+exports.deleteAccountPool = function (poolKey, accountId, poolId, callback) {
+    logger.info('deleting pool, account [%s] pool [%s]', accountId, poolId);
     call.post('/admin/accounts/${accountId}/pools/${poolId}/delete', _args().poolKey(poolKey).accountId(accountId).poolId(poolId), callback);
 };
 
+exports.cleanAccountPool = function (poolKey, accountId, poolId, callback) {
+    logger.info('cleaning pool, account [%s] pool [%s]', accountId, poolId);
+    call.post('/admin/accounts/${accountId}/pools/${poolId}/clean', _args().poolKey(poolKey).accountId(accountId).poolId(poolId), callback);
+};
+
 exports.readAccountPool = function (poolKey, accountId, poolId, callback) {
-    logger.info('reading account [%s] pool [%s]', accountId, poolId);
+    logger.info('reading pool, account [%s] pool [%s]', accountId, poolId);
     call.get('/admin/accounts/${accountId}/pools/${poolId}', _args().poolKey(poolKey).accountId(accountId).poolId(poolId), callback);
 };
 
@@ -237,22 +249,43 @@ exports.bootstrapPoolNode = function (poolKey, poolId, nodeId, callback) {
     logger.info('bootstrapping machine');
     call.post('/admin/pools/${poolId}/nodes/${nodeId}/bootstrap', _args().poolKey(poolKey).poolId(poolId).nodeId(nodeId), callback);
 };
-exports.occupyPoolNode = function (poolKey, poolId, callback) {
+exports.expirePoolNode = function (poolKey, poolId, nodeId, callback) {
+    logger.info('setting node as expired');
+    call.post('/account/pools/${poolId}/nodes/${nodeId}/expire', _args().poolKey(poolKey).poolId(poolId).nodeId(nodeId), callback);
+};
+exports.occupyPoolNode = function (poolKey, poolId, expires, callback) {
     logger.info('occupying machine in pool');
-    call.get('/account/pools/${poolId}/occupy', _args().poolKey(poolKey).poolId(poolId), callback);
+    call.get('/account/pools/${poolId}/occupy', _args().poolKey(poolKey).poolId(poolId).data( expires + ''), callback);
 };
 
 exports.readPoolErrors = function (poolKey, poolId, callback) {
-    logger.info('reading pool errors [%s]', poolId);
+    logger.info('reading pool errors in pool [%s]', poolId);
     call.get('/admin/pools/${poolId}/errors', _args().poolKey(poolKey).poolId(poolId), callback);
 };
+exports.deletePoolErrors = function (poolKey, poolId, callback) {
+    logger.info('deleting pool errors in pool [%s]', poolId);
+    call.post('/admin/pools/${poolId}/errors/delete', _args().poolKey(poolKey).poolId(poolId), callback);
+};
 exports.readPoolTasks = function (poolKey, poolId, callback) {
-    logger.info('reading pool tasks [%s]', poolId);
+    logger.info('reading pool tasks in pool [%s]', poolId);
     call.get('/admin/pools/${poolId}/tasks', _args().poolKey(poolKey).poolId(poolId), callback);
 };
 exports.deletePoolTask = function (poolKey, poolId, taskId, callback) {
     logger.info('deleting pool task [%s] from pool [%s]', taskId, poolId);
     call.post('/admin/pools/${poolId}/tasks/${taskId}/delete', _args().poolKey(poolKey).poolId(poolId).taskId(taskId), callback);
+};
+
+exports.readPoolDecisions = function (poolKey, poolId, callback) {
+    logger.info('reading pool decisions in pool [%s]', poolId);
+    call.get('/admin/pools/${poolId}/decisions', _args().poolKey(poolKey).poolId(poolId), callback);
+};
+exports.abortPoolDecision = function (poolKey, poolId, decisionId, callback) {
+    logger.info('aborting pool decision [%s] in pool [%s]', decisionId, poolId);
+    call.post('/admin/pools/${poolId}/decisions/${decisionId}/abort', _args().poolKey(poolKey).poolId(poolId).decisionId(decisionId), callback);
+};
+exports.updatePoolDecisionApproval = function (poolKey, poolId, decisionId, approved, callback) {
+    logger.info('updating pool decision [%s] in pool [%s]', decisionId, poolId);
+    call.post('/admin/pools/${poolId}/decisions/${decisionId}/approved/${approved}', _args().poolKey(poolKey).poolId(poolId).decisionId(decisionId).approved(approved), callback);
 };
 
 exports.readCloudNodes = function (poolKey, poolId, callback) {
