@@ -32,6 +32,12 @@ exports.adminReadAccountPools = function( req, res ){
     managers.poolClient.adminReadAccountPools(req.user.poolKey, req.params.accountId, _callback(res));
 };
 
+exports.adminSetAccountDescription = function( req, res ){
+    if ( !req.body || !req.body.description ){
+        res.send(500, {'message' : 'description is not set'});
+    }
+    managers.poolClient.setAccountDescription( req.user.poolKey, req.params.accountId, req.body.description, _callback(res) );
+};
 
 exports.createAccountPool = function( req, res ){
     managers.poolClient.createAccountPool(req.user.poolKey, req.params.accountId, req.body, _callback(res));
@@ -77,6 +83,9 @@ exports.bootstrapPoolNode = function( req, res ){
 
 exports.readPoolErrors = function( req, res ){
     managers.poolClient.readPoolErrors(req.user.poolKey, req.params.poolId, _callback(res));
+};
+exports.deletePoolErrors = function( req, res ){
+    managers.poolClient.deletePoolErrors(req.user.poolKey, req.params.poolId, _callback(res));
 };
 exports.readPoolTasks = function( req, res ){
     managers.poolClient.readPoolTasks(req.user.poolKey, req.params.poolId, _callback(res));

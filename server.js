@@ -16,6 +16,9 @@ var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
 var errorHandler = require('errorhandler');
 
+
+
+
 var app = module.exports = express();
 
 var domainModule = require('domain'),
@@ -69,14 +72,16 @@ domain.run(function () {
     app.post('/backend/user/widgets/:widgetId/delete', controllers.widgets.delete);
     app.get('/backend/user/widgets/:widgetId', controllers.widgets.read);
     app.post('/backend/user/widgets/:widgetId/update', controllers.widgets.update);
-    app.post('/backend/user/widgets/:widgetId/play', function(req, res, next){ try{controllers.widgets.play(req, res)}catch(e){ logger.info('excepton caught'); next(e); }});
-    app.post('/backend/user/widgets/:widgetId/play/remote', controllers.widgets.playRemote);
+    app.post('/backend/user/widgets/:widgetId/play', controllers.widgets.play);
     app.post('/backend/user/widgets/:widgetId/executions/:executionId/stop', controllers.widgets.stop );
     app.get('/backend/user/widgets/:widgetId/executions/:executionId/status', controllers.widgets.getStatus );
     app.get('/backend/user/widgets/:widgetId/executions/:executionId/output', controllers.widgets.getOutput);
 // a route to check if user logged in. relies on middleware to do the actual verification.
     app.get('/backend/user/loggedIn', function(req, res){ res.send(managers.users.getPublicUserDetails( req.user ) );} );
 
+app.get('/backend/admin/myUser', function(req, res){ res.send(req.user)});
+app.post('/backend/admin/myUser/setPoolKey', controllers.adminUsers.setAdminPoolKey);
+app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAdminPoolKey);
 //app.get('/backend/admin/users', function(req, res){ res.send('hello world!')});
     app.get('/backend/admin/users', controllers.pool.readUsers);
     app.post('/backend/admin/users', controllers.pool.createUsers);
@@ -98,6 +103,7 @@ domain.run(function () {
     app.post('/backend/admin/pools/:poolId/nodes/:nodeId/bootstrap', controllers.pool.bootstrapPoolNode);
 
     app.get('/backend/admin/pools/:poolId/errors', controllers.pool.readPoolErrors);
+    app.post('/backend/admin/pools/:poolId/errors/delete', controllers.pool.deletePoolErrors);
     app.get('/backend/admin/pools/:poolId/tasks', controllers.pool.readPoolTasks);
     app.get('/backend/admin/pools/:poolId/tasks/:taskId/delete', controllers.pool.deletePoolTask);
     app.get('/backend/admin/pools/:poolId/decisions', controllers.pool.readPoolDecisions);

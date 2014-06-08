@@ -5,15 +5,35 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>UUID</th>
+                <th>Pool Key</th>
+                <th>Description</th>
                 <th colspan="1">Actions</th>
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="user in model.users">
-                <td>{{ user.id }}</td>
-                <td>{{ user.uuid }}</td>
-                <td><a ng-href="#/admin/accounts/{{ user.id }}/pools">see pools</a></td>
+            <tr ng-repeat="user in users">
+                <td>{{ user.email }}</td>
+                <td>
+                    {{ user.poolKey }} <br/>
+                    <input ng-model="manualPoolKey" type="text"/><br/>
+                    <button ng-click="assignNewPoolKey(user)">Assign New Pool Key</button><br/>
+                    <button ng-click="setPoolKey(user,manualPoolKey)">Set Pool Key From Input</button><br/>
+                    <button ng-click="removePoolKey(user)">Remove Pool Key</button><br/>
+                </td>
+                <td>
+                    <div ng-show="!!user.poolKey">
+                        <div ng-show="!getAccount(user)">**This user is from another manager.<br/> It has a pool key but it does not match any uuid from the manager</div>
+                        <div style="max-width:200px;">{{ getAccount(user).description }}</div><br/>
+                        <input type="text" ng-model="newDescription"/><br/>
+                        <button ng-click="setDescription( user , newDescription )">Set Description</button>
+                    </div>
+                </td>
+                <td>
+
+                    <a ng-show="!!getAccount(user)" ng-href="#/admin/accounts/{{ getAccount(user).id }}/pools">see pools</a>
+
+
+                </td>
             </tr>
         </tbody>
     </table>

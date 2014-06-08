@@ -33,3 +33,7 @@ exports.toObjectId = function (id) {
     }
     throw new Error('unable to parse ObjectID from id [' + id + ']');
 };
+
+exports.id = function(id){
+    return exports.toObjectId(id);
+};

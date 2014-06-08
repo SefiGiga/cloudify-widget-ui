@@ -34,6 +34,13 @@ function Call() {
     function _callbackWrapper(callback) {
         return function (data, response) {
             if (response.statusCode == 200) {
+                if ( typeof(data) == 'string'){
+                    try {
+                        data = JSON.parse( data );
+                    }catch(e){
+                        logger.error('unable to parse JSON',data);
+                    }
+                }
                 callback(null, data);
             } else {
                 logger.info('got an error from rest client', response.statusCode);
@@ -180,6 +187,16 @@ exports.adminReadAccountPools = function (poolKey, accountId, callback) {
     call.get('/admin/accounts/${accountId}/pools', _args().poolKey(poolKey).accountId(accountId), callback);
 };
 
+exports.readByUuid = function( poolKey, uuid, callback ){
+    logger.info('getting account by uuid : ' + uuid);
+    call.get('/admin/accounts/byUuid/' + uuid, _args().poolKey(poolKey).path( { 'uuid' : uuid } ), callback);
+};
+
+exports.setAccountDescription = function ( poolKey, accountId, description, callback ){
+    logger.info('setting description to account : ' + accountId );
+    call.post('/admin/accounts/${accountId}/description', _args().poolKey(poolKey).accountId(accountId).data(description), callback);
+};
+
 exports.createAccountPool = function (poolKey, accountId, poolSettings, callback) {
     logger.info('creating new pool for account ::' + accountId);
     call.post('/admin/accounts/${accountId}/pools', _args().poolKey(poolKey).accountId(accountId).data(poolSettings), callback);
@@ -232,6 +249,10 @@ exports.bootstrapPoolNode = function (poolKey, poolId, nodeId, callback) {
     logger.info('bootstrapping machine');
     call.post('/admin/pools/${poolId}/nodes/${nodeId}/bootstrap', _args().poolKey(poolKey).poolId(poolId).nodeId(nodeId), callback);
 };
+exports.expirePoolNode = function (poolKey, poolId, nodeId, callback) {
+    logger.info('setting node as expired');
+    call.post('/account/pools/${poolId}/nodes/${nodeId}/expire', _args().poolKey(poolKey).poolId(poolId).nodeId(nodeId), callback);
+};
 exports.occupyPoolNode = function (poolKey, poolId, expires, callback) {
     logger.info('occupying machine in pool');
     call.get('/account/pools/${poolId}/occupy', _args().poolKey(poolKey).poolId(poolId).data( expires + ''), callback);
@@ -240,6 +261,10 @@ exports.occupyPoolNode = function (poolKey, poolId, expires, callback) {
 exports.readPoolErrors = function (poolKey, poolId, callback) {
     logger.info('reading pool errors in pool [%s]', poolId);
     call.get('/admin/pools/${poolId}/errors', _args().poolKey(poolKey).poolId(poolId), callback);
+};
+exports.deletePoolErrors = function (poolKey, poolId, callback) {
+    logger.info('deleting pool errors in pool [%s]', poolId);
+    call.post('/admin/pools/${poolId}/errors/delete', _args().poolKey(poolKey).poolId(poolId), callback);
 };
 exports.readPoolTasks = function (poolKey, poolId, callback) {
     logger.info('reading pool tasks in pool [%s]', poolId);
