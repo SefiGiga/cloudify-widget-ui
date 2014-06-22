@@ -24,7 +24,8 @@
     "passport-twitter": "~1.0.2",
     "passport-facebook": "~1.0.3",
     "passport-github": "~0.1.5",
-    "passport-strategy": "~1.0.0"
+    "passport-strategy": "~1.0.0",
+    "time-grunt": "~0.3.2"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

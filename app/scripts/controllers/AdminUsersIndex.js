@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('AdminUsersIndexCtrl', function ($scope, AdminUsersService, $log, $timeout) {
+    .controller('AdminUsersIndexCtrl', function ($scope, AdminUsersService, $log/*, $timeout*/) {
 
         var accounts = {};
 
-        $scope.getAccounts = function(){
+        $scope.getAccounts = function () {
             return accounts;
         };
 
 
-        function reloadAccounts(){
-            AdminUsersService.getPoolManagerAccounts().then( function ( result ){
+        function reloadAccounts() {
+            AdminUsersService.getPoolManagerAccounts().then(function (result) {
                 var list = result.data;
-                for ( var i = 0; i < list.length ; i ++ ){
+                for (var i = 0; i < list.length; i++) {
                     accounts[list[i].uuid] = list[i];
                 }
             });
@@ -25,52 +25,52 @@ angular.module('cloudifyWidgetUiApp')
             $scope.users = result.data;
         });
 
-        function _replaceUser ( user, newUser  ){
+        function _replaceUser(user, newUser) {
             var indexOf = $scope.users.indexOf(user);
             $scope.users[indexOf] = newUser;
         }
 
-        $scope.removePoolKey = function( user ){
-            AdminUsersService.removePoolKey( user).then( function( result ){
-                _replaceUser( user, result.data );
+        $scope.removePoolKey = function (user) {
+            AdminUsersService.removePoolKey(user).then(function (result) {
+                _replaceUser(user, result.data);
             });
         };
 
         // gets the account from pool manager according to uuid
-        $scope.getAccount = function( user ){
-            if ( !!user.poolKey && accounts.hasOwnProperty(user.poolKey)){
+        $scope.getAccount = function (user) {
+            if (!!user.poolKey && accounts.hasOwnProperty(user.poolKey)) {
                 return accounts[user.poolKey];
             }
             return null;
         };
 
-        $scope.setDescription = function( user, description ){
+        $scope.setDescription = function (user, description) {
             var account = $scope.getAccount(user);
-            if ( account === null ){
+            if (account === null) {
                 $log.error('only relevant for users with poolKey');
                 $scope.pageError = 'only relevant for users with poolKey';
-            }else{
-                AdminUsersService.setDescription( account , description).then(function( result ){
+            } else {
+                AdminUsersService.setDescription(account, description).then(function (result) {
                     accounts[result.data.uuid] = result.data;
                 });
             }
         };
 
-        $scope.setPoolKey = function( user, poolKey ){
-           AdminUsersService.setPoolKey( user, poolKey).then( function(result){
-               _replaceUser( user, result.data );
-               reloadAccounts();
-           });
+        $scope.setPoolKey = function (user, poolKey) {
+            AdminUsersService.setPoolKey(user, poolKey).then(function (result) {
+                _replaceUser(user, result.data);
+                reloadAccounts();
+            });
 
 
         };
 
         $scope.assignNewPoolKey = function (user) {
-            AdminUsersService.assignNewPoolKey(user).then( function (result) {
-                _replaceUser( user, result.data );
+            AdminUsersService.assignNewPoolKey(user).then(function (result) {
+                _replaceUser(user, result.data);
                 reloadAccounts();
             });
 
 
-        }
+        };
     });
