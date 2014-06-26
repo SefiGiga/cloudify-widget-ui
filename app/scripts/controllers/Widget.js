@@ -43,7 +43,7 @@ angular.module('cloudifyWidgetUiApp')
             $scope.widgetStatus = status;
             _postStatus(status);
             _getOutput(widget, executionId);
-            $timeout(_pollStatus.bind(this, false, widget, executionId), myTimeout || 3000);
+            $timeout( function(){ _pollStatus(false, widget, executionId); }, myTimeout || 3000);
         }
 
         function _pollStatus(myTimeout, widget, executionId) {

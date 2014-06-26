@@ -15,7 +15,7 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
 
             // optional method
             'requestError': function (rejection) {
-                if ( rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('message')){
+                if (rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('message')) {
                     $scope.pageError = rejection.data.message;
                 }
                 $scope.ajaxRequestInProgress = false;
@@ -41,7 +41,7 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
 
             // optional method
             'responseError': function (rejection) {
-                if ( rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('message')){
+                if (rejection.hasOwnProperty('data') && rejection.data.hasOwnProperty('message')) {
                     $scope.pageError = rejection.data.message;
                 }
                 $scope.ajaxRequestInProgress = false;
@@ -142,15 +142,15 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 templateUrl: 'views/widget/create.html',
                 controller: 'WidgetCrudCtrl'
             })
-            .when('/widgets/:widgetId/view',{
+            .when('/widgets/:widgetId/view', {
                 templateUrl: 'views/widget/themes/widgetView.html',
                 controller: 'WidgetViewCtrl'
             })
-            .when('/widgets/:widgetId/embed',{
+            .when('/widgets/:widgetId/embed', {
                 templateUrl: 'views/widget/themes/widgetEmbed.html',
                 controller: 'WidgetEmbedCtrl'
             })
-            .when('/widgets/:widgetId/blank',{
+            .when('/widgets/:widgetId/blank', {
                 templateUrl: 'views/widget/themes/blank.html',
                 controller: 'WidgetCtrl'
             })
@@ -167,8 +167,8 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 controller: 'LoginCtrl'
             })
             .when('/embed-demo', {
-              templateUrl: 'views/embed-demo.html',
-              controller: 'EmbedDemoCtrl'
+                templateUrl: 'views/embed-demo.html',
+                controller: 'EmbedDemoCtrl'
             })
             .otherwise({
                 redirectTo: '/demo'
