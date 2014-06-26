@@ -150,6 +150,10 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 templateUrl: 'views/widget/themes/widgetEmbed.html',
                 controller: 'WidgetEmbedCtrl'
             })
+            .when('/widgets/:widgetId/blank',{
+                templateUrl: 'views/widget/themes/blank.html',
+                controller: 'WidgetCtrl'
+            })
 
             .when('/admin/pools/:poolId/combinedView', {
                 templateUrl: 'views/pools/combinedStatusView.html'
@@ -161,6 +165,10 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
             .when('/login', {
                 templateUrl: 'views/login.html',
                 controller: 'LoginCtrl'
+            })
+            .when('/embed-demo', {
+              templateUrl: 'views/embed-demo.html',
+              controller: 'EmbedDemoCtrl'
             })
             .otherwise({
                 redirectTo: '/demo'

@@ -25,6 +25,7 @@
     "passport-facebook": "~1.0.3",
     "passport-github": "~0.1.5",
     "passport-strategy": "~1.0.0",
+    "download": "~0.1.17",
     "time-grunt": "~0.3.2"
   },
   "devDependencies": {

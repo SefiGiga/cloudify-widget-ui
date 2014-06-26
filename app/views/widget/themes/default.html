@@ -1,4 +1,8 @@
-<div class="default-theme" ng-controller="WidgetCtrl">
+<div class="default-theme" ng-controller="WidgetsDefaultCtrl">
+
+    <!-- TODO FIXME figure out how to put inner frame without it being empty -->
+    <!--<iframe id="api-frame" ng-src="{{blankIframeSrc}}"></iframe>-->
+
     <img src="/images/beta.png" class="beta-ribbon" />
     <span id="title">{{widget.title}}</span>
 
@@ -87,7 +91,8 @@
         <i class="close" ng-click="showEmbed=false"></i>
         <h3>Embed Code</h3>
         <p>Copy the code below to embed the widget on your website.</p>
-        <div widget-embed as-code="true" widget="widget"></div>
+        <div widget-embed as-code="true" widget="widget" view-wrap="true"></div>
     </div>
+
 
 </div>
