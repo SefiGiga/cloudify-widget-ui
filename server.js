@@ -83,10 +83,13 @@ app.get('/backend/admin/myUser', function(req, res){ res.send(req.user)});
 app.post('/backend/admin/myUser/setPoolKey', controllers.adminUsers.setAdminPoolKey);
 app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAdminPoolKey);
 //app.get('/backend/admin/users', function(req, res){ res.send('hello world!')});
-    app.get('/backend/admin/users', controllers.pool.readUsers);
+    app.get('/backend/admin/users', controllers.adminUsers.getAllUsers);
     app.post('/backend/admin/users', controllers.pool.createUsers);
+    app.post('/backend/admin/users/:userId/setPoolKey', controllers.adminUsers.loadUser, controllers.adminUsers.setPoolKey);
     app.get('/backend/admin/pools', controllers.pool.adminReadPools);
 
+    app.get('/backend/admin/accounts', controllers.pool.readAccounts);
+    app.post('/backend/admin/accounts/:accountId/description', controllers.pool.adminSetAccountDescription);
     app.get('/backend/admin/accounts/:accountId/pools', controllers.pool.adminReadAccountPools);
     app.post('/backend/admin/accounts/:accountId/pools', controllers.pool.createAccountPool);
     app.get('/backend/admin/accounts/:accountId/pools/:poolId', controllers.pool.adminReadAccountPool);

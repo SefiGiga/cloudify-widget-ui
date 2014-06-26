@@ -11,6 +11,7 @@ angular.module('cloudifyWidgetUiApp')
 
 
         function reloadAccounts() {
+            $log.info('reloading accounts');
             AdminUsersService.getPoolManagerAccounts().then(function (result) {
                 var list = result.data;
                 for (var i = 0; i < list.length; i++) {
@@ -38,6 +39,7 @@ angular.module('cloudifyWidgetUiApp')
 
         // gets the account from pool manager according to uuid
         $scope.getAccount = function (user) {
+
             if (!!user.poolKey && accounts.hasOwnProperty(user.poolKey)) {
                 return accounts[user.poolKey];
             }

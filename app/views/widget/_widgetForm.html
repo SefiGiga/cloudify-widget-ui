@@ -22,7 +22,7 @@
         Recipe Root Path (*): <input type="text" ng-model="widget.recipeRootPath"/><br/>
         <sup>the path to the recipe folder inside the downloaded zip</sup><br/>
     
-        Recipe Type (*): <select ng-model="widget.recipeType" ng-options="t.label for t in recipeTypes"></select><br/>
+        Recipe Type (*): <select ng-model="widget.recipeType" ng-options="t.id as t.label for t in recipeTypes"></select><br/>
     
         Pool Id (*): <input type="text" ng-model="widget.poolId"/><br/>
     

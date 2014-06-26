@@ -20,9 +20,10 @@ exports.createUsers = function( req, res ){
     managers.poolClient.createAccount(req.user.poolKey, _callback(res));
 };
 
-exports.readUsers = function (req, res) {
+exports.readAccounts = function (req, res) {
     managers.poolClient.readAccounts(req.user.poolKey, _callback(res));
 };
+
 
 exports.adminReadPools = function ( req, res ){
     managers.poolClient.adminReadPools(req.user.poolKey, _callback(res));

@@ -36,7 +36,7 @@ function updateAccountDescription( poolKey, user, callback ){
 exports.setPoolKey = function (req, res) {
     logger.info(req.params.userId);
     var user = req.actionUser;
-
+    logger.info('actionUser is ', user);
     function updateDescription(){
         updateAccountDescription( req.user.poolKey, user, function(){  res.send(user); });
     }
@@ -62,6 +62,7 @@ exports.setPoolKey = function (req, res) {
 };
 
 exports.setAdminPoolKey = function (req, res) {
+
     var newPoolKey = req.body.poolKey;
     if (!newPoolKey) {
         res.send(500, { 'message': 'new pool key not specified' });
