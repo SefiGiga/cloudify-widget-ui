@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('AdminPoolCrudCtrl', function ($scope, $log, $routeParams, $interval, AdminPoolCrudService, $rootScope) {
+    .controller('AdminPoolCrudCtrl', function ($scope, $log, $routeParams, $interval, AdminPoolCrudService) {
 
 
 
