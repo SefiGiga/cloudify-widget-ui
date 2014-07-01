@@ -67,10 +67,11 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 templateUrl: 'views/signup.html',
                 controller: 'SignupCtrl'
             })
-            .when('/admin/pools', {
-                templateUrl: 'views/admin/pools.html',
-                controller: 'AdminPoolCrudCtrl'
+            .when('/:role/pools', {
+                templateUrl: 'views/pools.html',
+                controller: 'PoolsIndexCtrl'
             })
+
             .when('/admin/users', {
                 templateUrl: 'views/admin/users.html',
                 controller: 'AdminUsersIndexCtrl'
@@ -91,6 +92,10 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
             .when('/admin/pools/:poolId/status', {
                 templateUrl: 'views/admin/poolStatus.html',
                 controller: 'AdminPoolCrudCtrl'
+            })
+            .when('/admin/accounts/:accountId/pools/:poolId/update', {
+                templateUrl : 'views/admin/updateUserPool.html',
+                controller: 'AdminPoolUpdateCtrl'
             })
             .when('/admin/pools/:poolId/nodes', {
                 templateUrl: 'views/admin/poolNodes.html',
@@ -115,11 +120,11 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
 
             .when('/admin/accounts/:accountId/pools', {
                 templateUrl: 'views/admin/userPools.html',
-                controller: 'AdminPoolCrudCtrl'
+                controller: 'AdminUserPoolsCtrl'
             })
             .when('/admin/accounts/:accountId/pools/create', {
                 templateUrl: 'views/admin/createUserPool.html',
-                controller: 'AdminPoolCrudCtrl'
+                controller: 'AdminPoolsCreateCtrl'
             })
 
             .when('/widgets', {
@@ -134,6 +139,7 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 templateUrl: 'views/widget/login/index.html',
                 controller: 'WidgetLoginCtrl'
             })
+
             .when('/widgets/:widgetId/update', {
                 templateUrl: 'views/widget/update.html',
                 controller: 'WidgetCrudCtrl'
@@ -155,8 +161,9 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
                 controller: 'WidgetCtrl'
             })
 
-            .when('/admin/pools/:poolId/combinedView', {
-                templateUrl: 'views/pools/combinedStatusView.html'
+            .when('/admin/accounts/:accountId/pools/:poolId/combinedView', {
+                templateUrl: 'views/pools/combinedStatusView.html',
+                controller: 'AdminPoolViewCtrl'
             })
             .when('/widgets/:widgetId/login/custom', {
                 templateUrl: 'views/widget/login/custom.html',

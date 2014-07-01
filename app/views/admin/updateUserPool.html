@@ -1,0 +1,8 @@
+<div layout>
+    <a href="#/admin/accounts/{{accountId}}/pools/{{pool.id}}/combinedView">Back to pool dashboard</a>
+    <h3>Create new pool for user {{ accountId }}</h3>
+    <!--<label for="poolSettingsTextarea">pool settings</label>-->
+    <textarea placeholder="pool settings" id="poolSettingsTextarea" ng-model="pool.poolSettingsStr"></textarea>
+    <br/>
+    <button ng-click="updateAccountPool(accountId, pool.poolSettingsStr)">Update Pool</button>
+</div>
