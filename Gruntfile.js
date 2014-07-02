@@ -31,8 +31,12 @@ module.exports = function (grunt) {
     } catch (e) {
     }
 
-
-    var deployOpts = grunt.file.readJSON('dev/deploy.json');
+    var deployOpts;
+    try { // optional file
+        deployOpts = grunt.file.readJSON('dev/deploy.json');
+    }catch(e){
+        deployOpts = { 'privateKey' : 'Gruntfile.js'};
+    }
 
     grunt.initConfig({
         yeoman: yeomanConfig,
