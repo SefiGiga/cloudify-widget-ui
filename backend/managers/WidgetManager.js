@@ -6,6 +6,7 @@ var async = require('async');
 var services = require('../services');
 var managers = require('../managers');
 var conf = require('../Conf');
+var models = require('../models');
 
 
 exports.play = function (widgetId, poolKey, playCallback) {
@@ -225,8 +226,9 @@ function _downloadRecipe(curryParams, curryCallback) {
         destDir: curryParams.executionDownloadsPath,
         recipeUrl: curryParams.widget.recipeUrl
     };
-    services.dl.downloadRecipe(options, function () {
-        curryCallback(null, curryParams);
+
+    services.dl.downloadRecipe(options, function (e) {
+        curryCallback(e, curryParams);
     });
 }
 
@@ -234,7 +236,7 @@ function _occupyMachine(curryParams, curryCallback) {
     logger.trace('-play- occupyMachine');
 
     // TODO better defense
-    var expires = Date.now() + (curryParams.widget.installTimeout * 60 * 1000);
+    var expires = Date.now() + ( ( curryParams.widget.installTimeout || 20 ) * 60 * 1000); //  default to 20 minutes
     logger.info('installation will expire within [%s] minutes - at [%s], or [%s] epoch time', curryParams.widget.installTimeout, Date(expires), expires);
 
     managers.poolClient.occupyPoolNode(curryParams.poolKey, curryParams.widget.poolId, expires, function (err, result) {
@@ -269,13 +271,15 @@ function _occupyMachine(curryParams, curryCallback) {
 function _runInstallCommand(curryParams, curryCallback) {
     logger.trace('-play- runInstallCommand');
 
-    var installPath;
-    try {
-        installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath);
-    } catch (e) {
-        curryCallback(new Error('failed while joining install path, one or more of the parameters is not a string: ['
-            + curryParams.executionDownloadsPath + '] [' + curryParams.widget.recipeRootPath + ']'), curryParams);
-        return;
+    var installPath = curryParams.executionDownloadsPath;
+    if ( !!curryParams.widget.recipeRootPath ) {
+        try {
+            installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath || ' ');
+        } catch (e) {
+            curryCallback(new Error('failed while joining install path, one or more of the parameters is not a string: ['
+                + curryParams.executionDownloadsPath + '] [' + curryParams.widget.recipeRootPath + ']'), curryParams);
+            return;
+        }
     }
 
     var command = {
@@ -283,7 +287,7 @@ function _runInstallCommand(curryParams, curryCallback) {
             'connect',
             curryParams.nodeModel.machineSshDetails.publicIp,
             ';',
-            curryParams.widget.recipeType.installCommand,
+            models.recipeType.getById(curryParams.widget.recipeType).installCommand,
             installPath
         ],
         logsDir: curryParams.executionLogsPath,
@@ -412,15 +416,16 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
 }
 
 function _playFinally(err, curryParams) {
-    logger.trace('-play- finished !');
-    logger.info('result is ', curryParams);
+
 
     if (!!err) {
-        logger.error('failed to play widget with id [%s]', curryParams.widgetId);
+//        logger.error('failed to play widget with id [%s]', curryParams.widgetId);
         _removeExecutionModel(curryParams.executionObjectId, curryParams.playCallback);
         curryParams.playCallback(err);
         return;
     }
+    logger.trace('-play- finished !');
+    logger.info('result is ', curryParams);
 
     curryParams.playCallback(null, curryParams.executionObjectId.toHexString());
 }

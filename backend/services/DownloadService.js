@@ -26,9 +26,13 @@ exports.downloadRecipe = function (options, callback) {
         dl.on('close', function () {
             callback && typeof callback === 'function' && callback(null);
         });
+        dl.on('error', function(e){
+            logger.info('got error from download',e);
+            callback(e);
+        })
     }catch(e){
-        logger.error(e);
-//        callback(e);
+//        logger.error('error while downloading',e);
+        callback(e);
     }
 };
 

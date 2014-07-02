@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('AdminPoolViewCtrl', function ($scope, $log, AdminPoolCrudService, $routeParams, $location, $interval ) {
+    .controller('AdminPoolViewCtrl', function ($scope, $log, AdminPoolCrudService, $routeParams, $location, $interval) {
 
         $scope.accountId = $routeParams.accountId;
         $scope.poolId = $routeParams.poolId;
@@ -20,10 +20,9 @@ angular.module('cloudifyWidgetUiApp')
         };
 
 
-
-         var refreshInterval = $interval(function () {
-                // TODO create child controllers and separate behaviors so we wouldn't have to call every getter
-                $log.info('refreshing');
+        var refreshInterval = $interval(function () {
+            // TODO create child controllers and separate behaviors so we wouldn't have to call every getter
+            $log.info('refreshing');
 
 //            if (!$rootScope.autoRefresh) {
 //                return;
@@ -32,20 +31,20 @@ angular.module('cloudifyWidgetUiApp')
 //            $scope.getUsers();
 //            $scope.getPools();
 
-                if (angular.isDefined($scope.model.poolId)) {
-                    $scope.getPoolStatus($scope.model.poolId);
-                    $scope.getPoolNodes($scope.model.poolId);
-                    $scope.getPoolTasks($scope.model.poolId);
-                    $scope.getPoolErrors($scope.model.poolId);
-                    $scope.getPoolDecisions($scope.model.poolId);
-                }
+            if (angular.isDefined($scope.model.poolId)) {
+                $scope.getPoolStatus($scope.model.poolId);
+                $scope.getPoolNodes($scope.model.poolId);
+                $scope.getPoolTasks($scope.model.poolId);
+                $scope.getPoolErrors($scope.model.poolId);
+                $scope.getPoolDecisions($scope.model.poolId);
+            }
 //            if (angular.isDefined($scope.model.accountId)) {
 //                $scope.getAccountPools($scope.model.accountId);
 //            }
 //            if (angular.isDefined($scope.model.accountId) && angular.isDefined($scope.model.poolId)) {
 //                $scope.getAccountPool($scope.model.accountId, $scope.model.poolId);
 //            }
-            }, 5000);
+        }, 5000);
 
 
         $scope.$on('$destroy', function () {
@@ -85,9 +84,9 @@ angular.module('cloudifyWidgetUiApp')
 
         $scope.deleteAccountPool = function (accountId, poolId) {
             $log.info('deleteAccountPool, accountId: ', accountId, ', poolId: ', poolId);
-            if ( !!confirm('are you sure you want to delete this pool?') ) {
+            if (!!confirm('are you sure you want to delete this pool?')) {
                 AdminPoolCrudService.deleteAccountPool(accountId, poolId).then(function (/*result*/) {
-                    $location.path('/admin/accounts/' + accountId  + '/pools');
+                    $location.path('/admin/accounts/' + accountId + '/pools');
 
                 });
             }

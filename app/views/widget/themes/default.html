@@ -3,6 +3,8 @@
     <!-- TODO FIXME figure out how to put inner frame without it being empty -->
     <!--<iframe id="api-frame" ng-src="{{blankIframeSrc}}"></iframe>-->
 
+
+
     <img src="/images/beta.png" class="beta-ribbon" />
     <span id="title">{{widget.title}}</span>
 
@@ -16,9 +18,10 @@
 
     <!--<button ng-click="getOutput()">get output</button>-->
     <!--<div id="log">{{ output }}</div>-->
+
     <ul id="log">
         <!--<li ng-repeat="output in getOutput()" ng-class="output {{output.class}}">Acquiring machine. This might take a few seconds, please wait...</li>-->
-        <li ng-repeat="line in output track by $index">{{ line }}</li>
+        <li ng-repeat="line in widgetStatus.output track by $index">{{ line }}</li>
     </ul>
 
     <ul id="links">
@@ -94,5 +97,6 @@
         <div widget-embed as-code="true" widget="widget" view-wrap="true"></div>
     </div>
 
-
+    <div blank-frame></div>
+    <!--<iframe ng-show="!!blankIframeSrc" ng-src="{{blankIframeSrc}}"></iframe>-->
 </div>

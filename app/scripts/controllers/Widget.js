@@ -2,7 +2,7 @@
 
 angular.module('cloudifyWidgetUiApp')
     .controller('WidgetCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage, $timeout) {
-
+        $log.info('loading widget controller');
         // we need to hold the running state to determine when to stop sending status/output messages back
         $scope.widgetStatus = {};
         var STATE_RUNNING = 'RUNNING';
@@ -25,6 +25,11 @@ angular.module('cloudifyWidgetUiApp')
                 });
         }
 
+        function parentLoaded(){
+            $log.info('posting widget_loaded message');
+            _postMessage({'name' : 'widget_loaded'});
+        }
+
         function stop (widget, executionId, isRemoteBootstrap) {
             WidgetsService.stopWidget(widget, executionId, isRemoteBootstrap).then(function () {
                 _postStopped(executionId);
@@ -40,9 +45,12 @@ angular.module('cloudifyWidgetUiApp')
         }
 
         function _handleStatus(status, myTimeout, widget, executionId) {
+
+            if ( !!status && !!status.output ) {
+                status.output = status.output.split('\n');
+            }
             $scope.widgetStatus = status;
             _postStatus(status);
-            _getOutput(widget, executionId);
             $timeout( function(){ _pollStatus(false, widget, executionId); }, myTimeout || 3000);
         }
 
@@ -60,44 +68,33 @@ angular.module('cloudifyWidgetUiApp')
             }
         }
 
-        function _getOutput (widget, executionId) {
-
-            WidgetsService.getOutput(widget, executionId)
-                .then(function (result) {
-                    var output = result.data.split('\n');
-                    _postOutput(output);
-                }, function (err) {
-                    $log.error(err);
-                });
-        }
-
-
         // post outgoing messages
 
         function _postStatus (status) {
-            _postMessage({name: 'status', data: status});
+            _postMessage({name: 'widget_status', data: status});
         }
 
-        function _postOutput (output) {
-            _postMessage({name: 'output', data: output});
-        }
 
         function _postPlayed (executionId) {
-            _postMessage({name: 'played', executionId: executionId});
+            _postMessage({name: 'widget_played', executionId: executionId});
         }
 
         function _postStopped (executionId) {
-            _postMessage({name: 'stopped', executionId: executionId});
+            _postMessage({name: 'widget_stopped', executionId: executionId});
         }
 
         function _postMessage(data) {
-            $window.parent.postMessage(data, /*$window.location.origin*/ '*');
+            if ( $window.parent !== $window ) {
+                $window.parent.postMessage(data, /*$window.location.origin*/ '*');
+            }
         }
+
+
 
 //        $log.debug('listening to messages on ', $window);
         // listen to incoming messages
         $window.addEventListener('message', function (e) {
-            $log.info('- - - message received, user posted: ', e.data);
+            $log.info('- - - blank received message, user posted: ', e.data);
             if (!e.data) {
                 $log.error('unable to handle posted message, no data was found');
                 return;
@@ -110,9 +107,14 @@ angular.module('cloudifyWidgetUiApp')
                 case 'stop':
                     stop(data.widget, data.executionId, data.isRemoteBootstrap);
                     break;
+                case 'loaded' :
+
+                    break;
                 default:
                     break;
             }
         });
+
+        parentLoaded();
 
     });

@@ -31,10 +31,10 @@ exports.executeCommand = function (options, onExit) {
     var defaultOptions = {
         executable: conf.cloudifyExecutable
     };
-    var _options = _.extend(defaultOptions, _options);
+    _options = _.extend(defaultOptions, _options);
 
     var executable = _options.executable;
-
+    logger.info('resolved executable path is : [', path.resolve(executable),']');
     // converts commandArgs to list if it is not a list. otherwise keeps it as a list
     // http://stackoverflow.com/questions/4775722/check-if-object-is-array
     var commandArgs = [].concat(_options.arguments);
@@ -55,8 +55,13 @@ exports.executeCommand = function (options, onExit) {
         throw new Error('onExit callback must be a function');
     }
 
+      try{
+          var myCmd = spawn(executable, commandArgs);
+      }catch(e){
+          logger.error('error while spawning command');
+          onExit(e);
+      }
 
-    var myCmd = spawn(executable, commandArgs);
 
     function appendToLogFile(data) {
         logs.appendOutput(data, _options.executionId);

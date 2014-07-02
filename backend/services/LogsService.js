@@ -1,14 +1,16 @@
 var logger = require('log4js').getLogger('LogsService');
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var conf = require('../Conf');
 var files = require('../services/FilesService');
 
 
 exports.readOutput = function (relativePath, callback) {
-    logger.info('reading from output log file');
-    _readLog(_getOutputFilePath(relativePath), callback);
+
+    var logFilePath = _getOutputFilePath(relativePath);
+//    logger.info('file, reading from :: ', path.resolve(logFilePath));
+    _readLog(logFilePath, callback);
 };
 
 exports.readStatus = function (relativePath, callback) {
@@ -65,7 +67,7 @@ function _readLog (logFilePath, callback) {
             return;
         }
 
-        fs.readFile(logFilePath, function (err, data) {
+        fs.readFile(logFilePath, 'utf8' ,function (err, data) {
             if (!!err) {
                 _call(callback, err);
                 return;

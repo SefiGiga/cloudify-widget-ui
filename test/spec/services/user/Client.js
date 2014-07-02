@@ -1,18 +1,18 @@
 'use strict';
 
-describe('Service: user/Client', function () {
+describe('Service: UserClient', function () {
 
   // load the service's module
   beforeEach(module('cloudifyWidgetUiApp'));
 
   // instantiate service
-  var user/Client;
-  beforeEach(inject(function (_user/Client_) {
-    user/Client = _user/Client_;
+  var UserClient;
+  beforeEach(inject(function (_UserClient_) {
+    UserClient = _UserClient_;
   }));
 
   it('should do something', function () {
-    expect(!!user/Client).toBe(true);
+    expect(!!UserClient).toBe(true);
   });
 
 });

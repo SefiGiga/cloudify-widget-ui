@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-  .controller('AdminUserPoolsCtrl', function ($scope, AdminPoolCrudService, $routeParams) {
+    .controller('AdminUserPoolsCtrl', function ($scope, AdminPoolCrudService, $routeParams) {
 
         $scope.accountId = $routeParams.accountId;
 
@@ -12,4 +12,4 @@ angular.module('cloudifyWidgetUiApp')
         };
 
         $scope.getAccountPools($scope.accountId);
-  });
+    });

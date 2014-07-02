@@ -4,10 +4,17 @@
 basePath = '';
 
 // list of files / patterns to load in the browser
+console.log(JASMINE, JASMINE_ADAPTER);
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'app/bower_components/angular/angular.js',
+    'app/bower_components/jquery/jquery.js',
+    'app/bower_components/angular/angular.js',
+    'app/bower_components/angular-cookies/angular-cookies.js',
+    'app/bower_components/angular-route/angular-route.js',
+    'app/bower_components/ngstorage/ngStorage.js',
+    'app/bower_components/angular-resource/angular-resource.js',
+    'app/bower_components/angular-mocks/angular-mocks.js',
   'app/bower_components/angular-mocks/angular-mocks.js',
   'app/scripts/*.js',
   'app/scripts/**/*.js',

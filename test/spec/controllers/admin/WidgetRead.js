@@ -1,22 +1,22 @@
 'use strict';
 
-describe('Controller: AdminUserPoolsCtrl', function () {
+describe('Controller: AdminWidgetReadCtrl', function () {
 
   // load the controller's module
   beforeEach(module('cloudifyWidgetUiApp'));
 
-  var AdminUserPoolsCtrl,
+  var AdminWidgetReadCtrl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    AdminUserPoolsCtrl = $controller('AdminUserPoolsCtrl', {
+    AdminWidgetReadCtrl = $controller('AdminWidgetReadCtrl', {
       $scope: scope
     });
   }));
 
-  it('should put getAccountPools on scope ', function () {
-    expect(!!scope.getAccountPools).toBe(true);
+  it('should attach theme to the scope', function () {
+    expect(!!scope.theme).toBe(true);
   });
 });

@@ -74,18 +74,18 @@ module.exports = function (grunt) {
                     xforward: false
                 }
             ],
-/*
-            proxiesProd: [
-                {
-                    context: '/backend',
-                    host: 'widgetui.gsdev.info',
-                    port: 80,
-                    https: false,
-                    changeOrigin: true,
-                    xforward: false
-                }
-            ],
-*/
+            /*
+             proxiesProd: [
+             {
+             context: '/backend',
+             host: 'widgetui.gsdev.info',
+             port: 80,
+             https: false,
+             changeOrigin: true,
+             xforward: false
+             }
+             ],
+             */
             livereload: {
                 options: {
                     middleware: function (connect) {
@@ -144,7 +144,7 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/{,*/}*.js'
+                '<%= yeoman.app %>/scripts/**/*.js'
             ]
         },
         coffee: {
@@ -298,7 +298,7 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         dest: '<%= yeoman.dist %>',
-                        src: [ '*.js', '*.sh','package.json', 'build/**/*', 'backend/**/*', 'conf/**/*' ]
+                        src: [ '*.js', '*.sh', 'package.json', 'build/**/*', 'backend/**/*', 'conf/**/*' ]
                     }
                 ]
             }
@@ -323,7 +323,32 @@ module.exports = function (grunt) {
             unit: {
                 configFile: 'karma.conf.js',
                 singleRun: true
+            },
+            single: {
+                configFile: 'karma.conf.js',
+//                singleRun: true
+                options: {
+                    files: [
+                        'node_modules/karma-jasmine/lib/jasmine.js',
+                        'node_modules/grunt-karma/node_modules/karma/adapter/jasmine.js',
+                        'app/bower_components/jquery/jquery.js',
+                        'app/bower_components/angular/angular.js',
+                        'app/bower_components/angular-cookies/angular-cookies.js',
+                        'app/bower_components/angular-route/angular-route.js',
+                        'app/bower_components/ngstorage/ngStorage.js',
+                        'app/bower_components/angular-resource/angular-resource.js',
+                        'app/bower_components/angular-mocks/angular-mocks.js',
+//                        'app/scripts/*.js',
+                        'app/scripts/**/*.js',
+                        'test/mock/**/*.js',
+//                        'test/spec/**/*.js',
+                        'test/**/blankFrame.js'
+                    ]
+                },
+                singleRun: false,
+                autoWatch: true
             }
+
         },
         cdnify: {
             dist: {
@@ -372,7 +397,14 @@ module.exports = function (grunt) {
         'clean:server',
         'concurrent:test',
         'connect:test',
-        'karma'
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('testSingle', [
+        'clean:server',
+        'concurrent:test',
+        'connect:test',
+        'karma:single'
     ]);
 
     grunt.registerTask('build', [

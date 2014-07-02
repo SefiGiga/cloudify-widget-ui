@@ -123,7 +123,7 @@ exports.play = function ( req, res ) {
 
         logger.info('widget play initiated successfully, execution id is [%s]', result)
         res.send(200, result);
-    }
+    };
 
     if (req.body.remote) {
         managers.widget.playRemote(req.params.widgetId, req.user.poolKey, req.body.advancedParams, playCallback);
@@ -293,38 +293,25 @@ exports.getStatus = function (req, res) {
         return;
     }
 
-    managers.widget.getStatus(req.params.executionId, function (err, result) {
+    managers.widget.getStatus(req.params.executionId, function (err, status) {
         if (!!err) {
             logger.error('get status failed', err);
             res.send(500, {message: 'get status failed', error: err});
             return;
         }
-        res.send(200, result);
+        managers.widget.getOutput(req.params.executionId, function (err, output) {
+//            if (!!err) {
+//                logger.error('get output failed', err);
+//                res.send(500, {message: 'get output failed', error: err});
+//                return;
+//            }
+            if ( !!output ) {
+                status.output = output;
+            }
+            res.send(200, status);
+        });
     });
 
 };
 
-exports.getOutput = function (req, res) {
-    logger.info('calling widget get output. user id [%s], widget id [%s], execution id [%s]', req.user._id, req.params.widgetId, req.params.executionId);
 
-    if (!req.params.widgetId) {
-        logger.error('unable to get output, no widget id found on request');
-        res.send(500, {message : 'no widget id found on request'});
-        return;
-    }
-
-    if (!req.params.executionId) {
-        logger.error('unable to get output, no execution id found on request');
-        res.send(500, {message : 'no execution id found on request'});
-        return;
-    }
-
-    managers.widget.getOutput(req.params.executionId, function (err, result) {
-        if (!!err) {
-            logger.error('get output failed', err);
-            res.send(500, {message: 'get output failed', error: err});
-            return;
-        }
-        res.send(200, result);
-    });
-};
