@@ -18,7 +18,7 @@ LOGFILE=/var/log/$PIDNAME.log
 
 start() {
     echo "pidname is [$PIDNAME]"
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
+  if [ -f /var/run/$PIDNAME.pid ] && kill -0 $(cat /var/run/$PIDNAME.pid); then
     echo 'Service already running' >&2
     return 1
   fi
@@ -51,7 +51,6 @@ status(){
     fi
 }
 
-
 upgrade(){
     $INSTALL_LOCATION/build/upgrade.sh
 }
@@ -77,4 +76,3 @@ case "$1" in
   *)
     echo "Usage: $0 {start|stop|restart|upgrade|status}"
 esac
-

@@ -31,8 +31,29 @@ module.exports = function (grunt) {
     } catch (e) {
     }
 
+
+    var deployOpts = grunt.file.readJSON('dev/deploy.json');
+
     grunt.initConfig({
         yeoman: yeomanConfig,
+        deployOpts: deployOpts,
+        pkg: grunt.file.readJSON('package.json'),
+        sftp: {
+            test: {
+                files: {
+                    'artifacts' : 'artifacts/**'
+                },
+                options: {
+                    'username' : '<%=deployOpts.username%>',
+                    'privateKey' : grunt.file.read(deployOpts.privateKey),
+                    'host' : '<%=deployOpts.host%>',
+                    'path' : '<%=deployOpts.path%>/<%=pkg.name%>/<%=pkg.version%>',
+                    'createDirectories' : true,
+                    'showProgress': true,
+                    'srcBasePath' : 'artifacts'
+                }
+            }
+        },
         watch: {
             coffee: {
                 files: ['<%= yeoman.app %>/scripts/{,*/}*.coffee'],
@@ -124,6 +145,16 @@ module.exports = function (grunt) {
             }
         },
         clean: {
+            artifacts: {
+                files: [
+                    {
+                        dot:true,
+                        src: [
+                            'artifacts'
+                        ]
+                    }
+                ]
+            },
             dist: {
                 files: [
                     {
@@ -298,7 +329,30 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         dest: '<%= yeoman.dist %>',
-                        src: [ '*.js', '*.sh', 'package.json', 'build/**/*', 'backend/**/*', 'conf/**/*' ]
+                        src: [ '*.js', '*.sh', 'package.json', 'build/**/*', 'backend/**/*', 'conf/**/*', 'build.id' ]
+                    }
+                ]
+            },
+            artifacts : {
+                files: [
+                    {
+                        dest: 'artifacts/',
+                        src: [
+                            'build.id'
+                        ]
+                    },
+                    {
+                        'expand':true,
+                        'dest' : 'artifacts/',
+                        'cwd' : '<%= yeoman.dist %>',
+                        'src' : '*.tgz'
+
+                    },
+                    {
+                        'expand':true,
+                        'dest': 'artifacts/',
+                        'cwd' : 'build',
+                        'src' : ['install.sh']
                     }
                 ]
             }
@@ -375,6 +429,28 @@ module.exports = function (grunt) {
                     ]
                 }
             }
+        },
+        'run':{
+            'installProduction': {
+                options: {
+                    'cwd' : 'dist'
+                },
+                cmd : 'npm',
+                args: [
+                    'install',
+                    '--production'
+                ]
+
+            },
+            'packDist' : {
+                'options' : {
+                    'cwd' : 'dist'
+                },
+                'cmd' : 'npm',
+                'args' : [
+                    'pack'
+                ]
+            }
         }
     });
 
@@ -412,7 +488,8 @@ module.exports = function (grunt) {
         'useminPrepare',
         'concurrent:dist',
         'concat',
-        'copy',
+        'writeBuildId',
+        'copy:dist',
         'cdnify',
         'ngmin',
         'cssmin',
@@ -425,5 +502,25 @@ module.exports = function (grunt) {
         'jshint',
         'test',
         'build'
+    ]);
+
+
+    grunt.registerTask('pack', [
+        'run:installProduction',
+        'run:packDist'
+    ]);
+
+    grunt.registerTask('writeBuildId',
+        function(){
+            grunt.file.write('build.id', require('os').hostname()  + '-' + new Date().getTime());
+        }
+    );
+
+    grunt.registerTask('deploy', [
+        'clean:artifacts',
+        'default',
+        'pack',
+        'copy:artifacts',
+        'sftp'
     ]);
 };
