@@ -2,17 +2,17 @@
 
 describe('Service: Client', function () {
 
-  // load the service's module
-  beforeEach(module('cloudifyWidgetUiApp'));
+    // load the service's module
+    beforeEach(module('cloudifyWidgetUiApp'));
 
-  // instantiate service
-  var Client;
-  beforeEach(inject(function (_Client_) {
-    Client = _Client_;
-  }));
+    // instantiate service
+    var Client;
+    beforeEach(inject(function (_Client_) {
+        Client = _Client_;
+    }));
 
-  it('should do something', function () {
-    expect(!!Client).toBe(true);
-  });
+    it('should do something', function () {
+        expect(!!Client).toBe(true);
+    });
 
 });

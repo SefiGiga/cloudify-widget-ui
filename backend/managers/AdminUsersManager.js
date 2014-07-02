@@ -1,3 +1,4 @@
+'use strict';
 var dbManager = require('./DbManager');
 
 exports.updateUser = function( user , callback ){
@@ -6,7 +7,7 @@ exports.updateUser = function( user , callback ){
             done();
             callback( err );
             return;
-        })
+        });
     });
 };
 
@@ -22,7 +23,7 @@ exports.getAll = function( filter, callback ){
             done();
             callback(result);
             return;
-        })
+        });
 
     });
 };

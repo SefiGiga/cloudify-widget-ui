@@ -1,3 +1,4 @@
+'use strict';
 var dbManager = require('./DbManager');
 var _ = require('lodash');
 var sha1 = require('sha1');
@@ -14,7 +15,7 @@ exports.getPublicUserDetails = function (user) {
 
 
 exports.findById = function (userId, callback) {
-    if (typeof(userId == 'string')) {
+    if (typeof(userId) ===  'string') {
         dbManager.id(userId);
     }
     dbManager.connect('users', function (db, collection, done) {
@@ -31,8 +32,8 @@ exports.findById = function (userId, callback) {
                 callback(null, result);
                 return;
             }
-        })
-    })
+        });
+    });
 };
 
 
@@ -45,7 +46,7 @@ exports.updateUser = function (user, callback) {
                 callback(err, user);
             }
             return;
-        })
+        });
     });
 };
 
@@ -71,7 +72,7 @@ exports.createUser = function (user, callback) {
                 done();
                 return;
             } else {
-                delete user['confirmPassword']; // TODO fix - change to 'passwordConfirm' - this is persisted!
+                delete user.confirmPassword; // TODO fix - change to 'passwordConfirm' - this is persisted!
                 user.password = sha1(user.password);
                 collection.insert(user, function (err, obj) {
                     if (!!err) {
@@ -85,7 +86,7 @@ exports.createUser = function (user, callback) {
                         done();
                         return;
                     }
-                })
+                });
             }
         });
 

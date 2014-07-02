@@ -1,3 +1,5 @@
+'use strict';
+
 var logger = require('log4js').getLogger('MailchimpService');
 var mailchimp = require('mailchimp');
 var MailchimpAPI = mailchimp.MailChimpAPI;
@@ -69,7 +71,7 @@ exports.unsubscribe = function( command, callback ){
 
     callback = typeof(callback) === 'function' ? callback : function(){};
 
-    api.call('lists', 'unsubscribe', command, function (error, data) {
+    api.call('lists', 'unsubscribe', command, function (err/*, data*/) {
         if (err) {
             logger.error('unable to unsubscribe from mailchimp',err);
             callback(err);

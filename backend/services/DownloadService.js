@@ -1,7 +1,7 @@
-
+'use strict';
 var logger = require('log4js').getLogger('DownloadService');
-var fs = require('fs');
-var path = require('path');
+//var fs = require('fs');
+//var path = require('path');
 var download = require('download');
 var files = require('./FilesService');
 
@@ -29,7 +29,7 @@ exports.downloadRecipe = function (options, callback) {
         dl.on('error', function(e){
             logger.info('got error from download',e);
             callback(e);
-        })
+        });
     }catch(e){
 //        logger.error('error while downloading',e);
         callback(e);
@@ -41,8 +41,8 @@ if (require.main === module) {
     logger.info('running main file, download recipe');
     try {
         var params = {
-            destDir: "downloaded",
-            cloudifyRecipeUrl: "https://dl.dropboxusercontent.com/s/u51vae4947uto0u/biginsights_solo.zip?dl=1&token_hash=AAEi1Dx3f2AFvkYXRe3FgfpspkBkQCZLLaRJb7DYHe-y1w"
+            destDir: 'downloaded',
+            cloudifyRecipeUrl: 'https://dl.dropboxusercontent.com/s/u51vae4947uto0u/biginsights_solo.zip?dl=1&token_hash=AAEi1Dx3f2AFvkYXRe3FgfpspkBkQCZLLaRJb7DYHe-y1w'
         };
         logger.info('start....');
         exports.downloadRecipe(params, function () {

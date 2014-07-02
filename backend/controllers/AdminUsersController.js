@@ -1,3 +1,4 @@
+'use strict';
 var managers = require('../managers');
 var logger = require('log4js').getLogger('AdminUsersController');
 
@@ -69,10 +70,10 @@ exports.setAdminPoolKey = function (req, res) {
     }
     logger.info('setting admin pool key to: ' + newPoolKey);
     req.user.poolKey = newPoolKey;
-    managers.db.connect('users', function (db, collection, done) {
+    managers.db.connect('users', function (db, collection) {
         collection.update({'_id': req.user._id}, req.user, function () {
             res.send(req.user);
-        })
+        });
 
     });
 };
@@ -95,7 +96,7 @@ exports.testAdminPoolKey = function (req, res) {
  */
 exports.removePoolKey = function (req, res) {
     var user = req.actionUser;
-    delete user['poolKey'];
+    delete user.poolKey;
     managers.users.updateUser(user, function (err) {
         if (!!err) {
             res.send(500, { 'message': err });

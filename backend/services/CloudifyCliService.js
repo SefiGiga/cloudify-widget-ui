@@ -1,13 +1,14 @@
+'use strict';
+
 var logger = require('log4js').getLogger('CloudifyCliService');
 
 var fs = require('fs');
 var path = require('path');
 var spawn = require('child_process').spawn;
-var files = require('./FilesService');
+//var files = require('./FilesService');
 var logs = require('./LogsService');
 var conf = require('../Conf');
 var _ = require('lodash');
-
 
 
 /**
@@ -26,7 +27,7 @@ exports.executeCommand = function (options, onExit) {
         _options = {arguments: options};
     }
 
-    logger.info('~~~executeCommand [%s] ', options );
+    logger.info('~~~executeCommand [%s] ', options);
 
     var defaultOptions = {
         executable: conf.cloudifyExecutable
@@ -34,7 +35,7 @@ exports.executeCommand = function (options, onExit) {
     _options = _.extend(defaultOptions, _options);
 
     var executable = _options.executable;
-    logger.info('resolved executable path is : [', path.resolve(executable),']');
+    logger.info('resolved executable path is : [', path.resolve(executable), ']');
     // converts commandArgs to list if it is not a list. otherwise keeps it as a list
     // http://stackoverflow.com/questions/4775722/check-if-object-is-array
     var commandArgs = [].concat(_options.arguments);
@@ -55,12 +56,13 @@ exports.executeCommand = function (options, onExit) {
         throw new Error('onExit callback must be a function');
     }
 
-      try{
-          var myCmd = spawn(executable, commandArgs);
-      }catch(e){
-          logger.error('error while spawning command');
-          onExit(e);
-      }
+    var myCmd;
+    try {
+        myCmd = spawn(executable, commandArgs);
+    } catch (e) {
+        logger.error('error while spawning command');
+        onExit(e);
+    }
 
 
     function appendToLogFile(data) {
@@ -76,7 +78,7 @@ exports.executeCommand = function (options, onExit) {
     myCmd.stderr.on('data', appendToLogFile);
 
     myCmd.on('error', function (err) {
-        writeStatusJsonFile({"error": err})
+        writeStatusJsonFile({'error': err});
     });
 
     myCmd.on('exit', function (code, signal) {
@@ -91,7 +93,7 @@ exports.executeCommand = function (options, onExit) {
     });
 
     myCmd.on('close', function (code) {
-        writeStatusJsonFile({"code": code})
+        writeStatusJsonFile({'code': code});
     });
 
     logger.info('running command [%s] [%s]...', executable, commandArgs);
@@ -99,14 +101,11 @@ exports.executeCommand = function (options, onExit) {
 };
 
 
-
-
-
 /**
  * only used in main!
  *
  * opts = {
- *  "newDir" : "new tasks directory"
+ *  'newDir' : 'new tasks directory'
  * }
  * @param opts
  * @returns {null}
@@ -121,7 +120,7 @@ exports.readConfigurationFromFile = function (opts) {
     }
     var files = fs.readdirSync(newDir);
 
-    if (files.length == 0 || files.indexOf('stop') >= 0) {
+    if (files.length === 0 || files.indexOf('stop') >= 0) {
         logger.debug('no files found, aborting');
         return null;
     }
@@ -150,7 +149,6 @@ exports.readConfigurationFromFile = function (opts) {
 
 
 if (require.main === module) {
-    var conf = require('../Conf');
     logger.info('running main file CloudifyCliService');
     try {
         var execConfiguration = exports.readConfigurationFromFile(conf.cloudifyCliService);

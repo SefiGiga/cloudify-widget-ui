@@ -1,3 +1,5 @@
+'use strict';
+
 var loginTypes = [
     {
         'id': 'google',

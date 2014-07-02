@@ -174,13 +174,39 @@ module.exports = function (grunt) {
             server: '.tmp'
         },
         jshint: {
-            options: {
-                jshintrc: '.jshintrc'
+
+            frontend: {
+                options: {
+                    jshintrc: '.jshintrc'
+                },
+                files: {
+                    'src': [
+                        'Gruntfile.js',
+                        '<%= yeoman.app %>/scripts/**/*.js'
+                    ]
+                }
             },
-            all: [
-                'Gruntfile.js',
-                '<%= yeoman.app %>/scripts/**/*.js'
-            ]
+            backend: {
+                options: {
+                    jshintrc: 'backend.jshintrc'
+                },
+                files: {
+                    'src': [
+                        'server.js',
+                        'backend/**/*.js'
+                    ]
+                }
+            },
+            test: {
+                options: {
+                    jshintrc: 'test.jshintrc'
+                },
+                files: {
+                    'src': [
+                        'test/**/*.js'
+                    ]
+                }
+            }
         },
         coffee: {
             dist: {

@@ -1,4 +1,5 @@
-var logger = require('log4js').getLogger('PoolController');
+'use strict';
+//var logger = require('log4js').getLogger('PoolController');
 
 var managers = require('../managers');
 
@@ -13,7 +14,7 @@ function _callback( res, callback ){
         else{
             res.send(data);
         }
-    }
+    };
 }
 
 exports.createUsers = function( req, res ){

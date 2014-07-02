@@ -1,13 +1,14 @@
+'use strict';
 var logger = require('log4js').getLogger('PoolRestClient');
 var conf = require('../Conf');
 var _ = require('lodash');
 
 // var ajax = require('http');
 var Client = require('node-rest-client').Client;
-var client = new Client;
+var client = new Client();
 
 function _getBaseUrl() {
-    return conf.poolRestUrl.protocol + "://" + conf.poolRestUrl.domain + ":" + conf.poolRestUrl.port;
+    return conf.poolRestUrl.protocol + '://' + conf.poolRestUrl.domain + ':' + conf.poolRestUrl.port;
 }
 
 function _url(relativePath) {
@@ -15,6 +16,86 @@ function _url(relativePath) {
     logger.debug('calling [%s]', result);
     return result;
 }
+
+
+function ArgsBuilder() {
+
+    var _args = {  };
+
+    this.header = function (_header) {
+        _.merge(_args, {'headers': _header });
+        return this;
+    };
+
+    this.path = function (_path) {
+        _.merge(_args, {'path': _path});
+        return this;
+    };
+
+    this.data = function (_data) {
+        _.merge(_args, {'data': _data});
+        return this;
+    };
+
+    this.param = function (_param) {
+        _.merge(_args, {'parameters': _param});
+    };
+
+    this.done = function () {
+        return _args;
+    };
+
+
+    this.poolKey = function (_poolKey) {
+        this.header({'AccountUuid': _poolKey });
+        return this;
+    };
+
+    this.accountId = function (_accountId) {
+        this.path({'accountId': _accountId});
+        return this;
+    };
+
+    this.poolId = function (_poolId) {
+        this.path({'poolId': _poolId });
+        return this;
+    };
+
+    this.nodeId = function (_nodeId) {
+        this.path({'nodeId': _nodeId});
+        return this;
+    };
+
+    this.taskId = function (_taskId) {
+        this.path({'taskId': _taskId});
+        return this;
+    };
+
+    this.decisionId = function (_decisionId) {
+        this.path({'decisionId': _decisionId});
+        return this;
+    };
+
+    this.approved = function (_approved) {
+        this.path({'approved': _approved});
+        return this;
+    };
+
+    this.widgetId = function (_widgetId) {
+        this.path({'widgetId': _widgetId});
+        return this;
+    };
+
+    this.cloudId = function (_cloudId) {
+        this.path({'cloudId': _cloudId});
+        return this;
+    };
+}
+
+
+var _args = function () {
+    return new ArgsBuilder();
+};
 
 function responseError(response, data) {
     var err = new Error();
@@ -33,8 +114,8 @@ function Call() {
 
     function _callbackWrapper(callback) {
         return function (data, response) {
-            if (response.statusCode == 200) {
-                if ( typeof(data) == 'string'){
+            if (response.statusCode === 200) {
+                if ( typeof(data) === 'string'){
                     try {
                         data = JSON.parse( data );
                     }catch(e){
@@ -46,7 +127,7 @@ function Call() {
                 logger.info('got an error from rest client', response.statusCode);
                 callback(responseError(response, data));
             }
-        }
+        };
     }
 
     this.invoke = function (method, url, args, callback) {
@@ -58,14 +139,15 @@ function Call() {
         var myUrl = _url(url);
         var myCallback = _callbackWrapper(callback);
         try {
-            if (method == 'get') {
-                var req = client.get(myUrl, myArgs, myCallback);
-            } else if (method == 'post') {
-                var req = client.post(myUrl, myArgs, myCallback);
+            var req;
+            if (method === 'get') {
+                req = client.get(myUrl, myArgs, myCallback);
+            } else if (method === 'post') {
+                req = client.post(myUrl, myArgs, myCallback);
             }
             req.on('error', function () {
                 logger.error('got request error', arguments);
-            })
+            });
         } catch (e) {
             logger.error('got error from client', e);
             callback(e);
@@ -84,84 +166,7 @@ function Call() {
 
 var call = new Call();
 
-function ArgsBuilder() {
 
-    var _args = {  };
-
-    this.header = function (_header) {
-        _.merge(_args, {"headers": _header });
-        return this;
-    };
-
-    this.path = function (_path) {
-        _.merge(_args, {"path": _path});
-        return this;
-    };
-
-    this.data = function (_data) {
-        _.merge(_args, {"data": _data});
-        return this;
-    };
-
-    this.param = function (_param) {
-        _.merge(_args, {"parameters": _param});
-    };
-
-    this.done = function () {
-        return _args;
-    };
-
-
-    this.poolKey = function (_poolKey) {
-        this.header({"AccountUuid": _poolKey });
-        return this;
-    };
-
-    this.accountId = function (_accountId) {
-        this.path({"accountId": _accountId});
-        return this;
-    };
-
-    this.poolId = function (_poolId) {
-        this.path({"poolId": _poolId });
-        return this;
-    };
-
-    this.nodeId = function (_nodeId) {
-        this.path({"nodeId": _nodeId});
-        return this;
-    };
-
-    this.taskId = function (_taskId) {
-        this.path({"taskId": _taskId});
-        return this;
-    };
-
-    this.decisionId = function (_decisionId) {
-        this.path({"decisionId": _decisionId});
-        return this;
-    };
-
-    this.approved = function (_approved) {
-        this.path({"approved": _approved});
-        return this;
-    };
-
-    this.widgetId = function (_widgetId) {
-        this.path({"widgetId": _widgetId});
-        return this;
-    };
-
-    this.cloudId = function (_cloudId) {
-        this.path({"cloudId": _cloudId});
-        return this;
-    };
-}
-
-
-var _args = function () {
-    return new ArgsBuilder();
-};
 
 
 /**************** ADMIN LEVEL CALLS ***************************/

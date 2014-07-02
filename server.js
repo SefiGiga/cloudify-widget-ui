@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Module dependencies.
  */
@@ -9,7 +10,7 @@ var managers = require('./backend/managers');
 var middleware = require('./backend/middleware');
 
 var passport = require('passport');
-var conf = require('./backend/Conf');
+//var conf = require('./backend/Conf');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cookieParser = require('cookie-parser');
@@ -17,14 +18,12 @@ var cookieSession = require('cookie-session');
 var errorHandler = require('errorhandler');
 
 
-
-
 var app = module.exports = express();
 
 var domainModule = require('domain'),
     domain = domainModule.create();
 
-domain.on('error', function(err) {
+domain.on('error', function (err) {
     console.error(err);
 });
 
@@ -34,19 +33,19 @@ domain.run(function () {
     var conf = require('./backend/Conf');
     logger.info(JSON.stringify(conf));
 
-    if ( !!conf.adminUser ){
+    if (!!conf.adminUser) {
         conf.adminUser.passwordConfirm = conf.adminUser.password;
         conf.adminUser.firstName = 'admin';
         conf.adminUser.lastName = 'admin';
         conf.adminUser.poolKey = conf.adminUser.poolKey;
         conf.adminUser.isAdmin = true;
-        managers.users.createUser(conf.adminUser, function(err, user){
-            if ( !!err && err.indexOf('exists') < 0 ){
+        managers.users.createUser(conf.adminUser, function (err/*, user*/) {
+            if (!!err && err.indexOf('exists') < 0) {
                 logger.error('unable to create admin user ' + err);
-            }else{
+            } else {
                 logger.info('admin user created successfully');
             }
-        })
+        });
     }
 
 
@@ -61,11 +60,11 @@ domain.run(function () {
     app.use('/backend/admin', middleware.session.loggedUser);
     app.use('/backend/admin', middleware.session.adminUser);
 
-    app.all('*',errorHandler({ dumpExceptions: true, showStack: true }));
+    app.all('*', errorHandler({ dumpExceptions: true, showStack: true }));
 
     // Routes
     app.post('/backend/signup', controllers.session.signup);
-    app.post('/backend/login', controllers.session.login );
+    app.post('/backend/login', controllers.session.login);
     app.post('/backend/logout', controllers.session.logout);
     app.get('/backend/user/widgets', controllers.widgets.list);
     app.post('/backend/user/widgets', controllers.widgets.create);
@@ -73,15 +72,19 @@ domain.run(function () {
     app.get('/backend/user/widgets/:widgetId', controllers.widgets.read);
     app.post('/backend/user/widgets/:widgetId/update', controllers.widgets.update);
     app.post('/backend/user/widgets/:widgetId/play', controllers.widgets.play);
-    app.post('/backend/user/widgets/:widgetId/executions/:executionId/stop', controllers.widgets.stop );
-    app.get('/backend/user/widgets/:widgetId/executions/:executionId/status', controllers.widgets.getStatus );
+    app.post('/backend/user/widgets/:widgetId/executions/:executionId/stop', controllers.widgets.stop);
+    app.get('/backend/user/widgets/:widgetId/executions/:executionId/status', controllers.widgets.getStatus);
 //    app.get('/backend/user/widgets/:widgetId/executions/:executionId/output', controllers.widgets.getOutput);
 // a route to check if user logged in. relies on middleware to do the actual verification.
-    app.get('/backend/user/loggedIn', function(req, res){ res.send(managers.users.getPublicUserDetails( req.user ) );} );
+    app.get('/backend/user/loggedIn', function (req, res) {
+        res.send(managers.users.getPublicUserDetails(req.user));
+    });
 
-app.get('/backend/admin/myUser', function(req, res){ res.send(req.user)});
-app.post('/backend/admin/myUser/setPoolKey', controllers.adminUsers.setAdminPoolKey);
-app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAdminPoolKey);
+    app.get('/backend/admin/myUser', function (req, res) {
+        res.send(req.user);
+    });
+    app.post('/backend/admin/myUser/setPoolKey', controllers.adminUsers.setAdminPoolKey);
+    app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAdminPoolKey);
 //app.get('/backend/admin/users', function(req, res){ res.send('hello world!')});
     app.get('/backend/admin/users', controllers.adminUsers.getAllUsers);
     app.post('/backend/admin/users', controllers.pool.createUsers);
@@ -115,7 +118,7 @@ app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAd
 
     app.get('/backend/admin/pools/:poolId/cloud/nodes', controllers.pool.readCloudNodes);
 
-    app.get('/backend/user/account/pools', controllers.pool.accountReadPools );
+    app.get('/backend/user/account/pools', controllers.pool.accountReadPools);
     app.post('/backend/user/account/pools', controllers.pool.createPool);
     app.post('/backend/user/account/pools/:poolId', controllers.pool.updatePool);
     app.post('/backend/user/account/pools/:poolId/delete', controllers.pool.deletePool);
@@ -127,19 +130,21 @@ app.post('/backend/admin/myUser/testAdminPoolKey', controllers.adminUsers.testAd
     app.get('/backend/widgets/login/types', controllers.widgetLogin.getTypes);
     app.get('/backend/widgets/:widgetId/login/:loginType', controllers.widgetLogin.widgetLogin);
     app.post('/backend/widgets/:widgetId/login/custom',
-        function(req,res,next){ req.params.loginType = 'custom'; next(); },
+        function (req, res, next) {
+            req.params.loginType = 'custom';
+            next();
+        },
         controllers.widgetLogin.widgetLogin,
-        function(req, res ){
+        function (req, res) {
             res.send(200);
         }
     );
     app.get('/backend/widgets/:widgetId/login/:loginType/callback', controllers.widgetLogin.widgetLoginCallback);
 
 
-
     var widgetPort = process.argv[2] || 9001;
-    var server = app.listen(widgetPort, function(){
-        logger.info("Express server listening on port %d in %s mode", server.address().port, app.settings.env);
+    var server = app.listen(widgetPort, function () {
+        logger.info('Express server listening on port %d in %s mode', server.address().port, app.settings.env);
     });
 
 

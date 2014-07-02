@@ -1,3 +1,4 @@
+'use strict';
 exports.db = require('./DbManager');
 exports.users = require('./UsersManager');
 
