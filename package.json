@@ -89,8 +89,11 @@
         "passport-google",
         "passport-github",
         "passport-strategy",
+        "passport",
         "download",
-        "fs-extra"
+        "fs-extra",
+        "password"
+
     ],
     "engines": {
         "node": ">=0.8.0"
