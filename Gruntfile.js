@@ -43,7 +43,7 @@ module.exports = function (grunt) {
         deployOpts: deployOpts,
         pkg: grunt.file.readJSON('package.json'),
         sftp: {
-            test: {
+            upload: {
                 files: {
                     'artifacts' : 'artifacts/**'
                 },
