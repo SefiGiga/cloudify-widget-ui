@@ -12,18 +12,30 @@ angular.module('cloudifyWidgetUiApp')
             },
             controller: function ($scope, $element) {
 
+                var theme;
                 $scope.timestamp = new Date().getTime();
 
+
+                function getThemeFromScope(){
+
+                    if ( !!$scope.theme){
+                        return WidgetThemesService.getThemeById($scope.theme);
+                    }else if ( !!$scope.widget.theme) {
+                        return WidgetThemesService.getThemeById($scope.widget.theme);
+                    }
+                    return null;
+                }
+
                 $scope.getIframeWidth = function () {
-                    if ($scope.theme) {
-                        return $scope.theme.width;
+                    if (!!theme) {
+                        return theme.width;
                     }
                     return '';
                 };
 
                 $scope.getIframeHeight = function () {
-                    if ($scope.theme) {
-                        return $scope.theme.height;
+                    if (!!theme) {
+                        return theme.height;
                     }
                     return '';
                 };
@@ -35,11 +47,17 @@ angular.module('cloudifyWidgetUiApp')
                     return '';
                 };
 
+
+                $scope.$watch('widget', function(){
+                      theme = getThemeFromScope();
+                },true);
+
+                $scope.$watch('theme', function(){
+                    theme = getThemeFromScope();
+                });
+
                 $scope.$watch('widget', function () {
                     $scope.timestamp = new Date().getTime();
-                    if (!!$scope.widget.theme) {
-                        $scope.theme = WidgetThemesService.getThemeById($scope.widget.theme);
-                    }
                 }, true);
 
                 $scope.getHost = function () {
