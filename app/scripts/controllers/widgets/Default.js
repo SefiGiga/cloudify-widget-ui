@@ -155,11 +155,11 @@ angular.module('cloudifyWidgetUiApp')
 
         // post outgoing messages
         function _postPlay(widget, advancedParams, isRemoteBootstrap) {
-            _postMessage({name: 'play', widget: widget, advancedParams: advancedParams, isRemoteBootstrap: isRemoteBootstrap});
+            _postMessage({name: 'widget_play', widget: widget, advancedParams: advancedParams, isRemoteBootstrap: isRemoteBootstrap});
         }
 
         function _postStop(widget, executionId, isRemoteBootstrap) {
-            _postMessage({name: 'stop', widget: widget, executionId: executionId, isRemoteBootstrap: isRemoteBootstrap});
+            _postMessage({name: 'widget_stop', widget: widget, executionId: executionId, isRemoteBootstrap: isRemoteBootstrap});
         }
 
         function _postMessage(data) {

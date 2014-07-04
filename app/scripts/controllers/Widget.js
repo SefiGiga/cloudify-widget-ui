@@ -101,13 +101,13 @@ angular.module('cloudifyWidgetUiApp')
             }
             var data = e.data;
             switch (data.name) {
-                case 'play':
+                case 'widget_play':
                     play(data.widget, data.advancedParams, data.isRemoteBootstrap);
                     break;
-                case 'stop':
+                case 'widget_stop':
                     stop(data.widget, data.executionId, data.isRemoteBootstrap);
                     break;
-                case 'loaded' :
+                case 'parent_loaded' :
 
                     break;
                 default:
