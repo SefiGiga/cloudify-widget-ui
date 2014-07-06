@@ -9,19 +9,56 @@ angular.module('cloudifyWidgetUiApp')
         var STATE_STOPPED = 'STOPPED';
 
 
-        function play (widget, advancedParams, isRemoteBootstrap) {
+        // when there's an executionId, lets start polling...
+        $scope.$watch('executionId', function( newValue, oldValue ){
+            $log.info('executionId changed', newValue, oldValue);
+            if ( !!newValue && !oldValue ){
+                $log.info('detected executionId exists, starting poll');
+                $scope.widgetStatus.state = STATE_RUNNING;
+                _pollStatus(1, { '_id' : $scope.widgetId }, newValue);
+            }
 
+            if ( !newValue ){
+                _resetWidgetStatus();
+            }
+        });
+
+        $scope.widget =  {  '_id' : $routeParams.widgetId };
+        $scope.executionId = null;
+
+        function saveState(){
+            localStorage.setItem( $scope.widget._id, $scope.executionId  );
+        }
+
+        function deleteState(){
+            localStorage.removeItem( $scope.widget._id );
+        }
+
+        function loadState(){
+            var executionId = localStorage.getItem( $scope.widget._id );
+            if ( !!executionId ){
+                $log.info('resuming execution.. found execution in local storage');
+                $scope.executionId = executionId;
+            }
+        }
+
+
+
+        function play (widget, advancedParams, isRemoteBootstrap) {
+            $log.info('playing widget');
             _resetWidgetStatus();
             $scope.widgetStatus.state = STATE_RUNNING;
 
             WidgetsService.playWidget(widget, advancedParams, isRemoteBootstrap)
                 .then(function (result) {
-                    console.log(['play result', result]);
-                    var executionId = result.data;
-                    _postPlayed(executionId);
-                    _pollStatus(1, widget, executionId);
+                    $log.info(['play result', result]);
+
+                    $scope.executionId = result.data;
+                    saveState();
+
+                    _postPlayed($scope.executionId);
                 }, function (err) {
-                    console.log(['play error', err]);
+                    $log.info(['play error', err]);
                 });
         }
 
@@ -32,6 +69,7 @@ angular.module('cloudifyWidgetUiApp')
 
         function stop (widget, executionId, isRemoteBootstrap) {
             WidgetsService.stopWidget(widget, executionId, isRemoteBootstrap).then(function () {
+                deleteState();
                 _postStopped(executionId);
                 _resetWidgetStatus();
             });
@@ -55,9 +93,9 @@ angular.module('cloudifyWidgetUiApp')
         }
 
         function _pollStatus(myTimeout, widget, executionId) {
-
+            $log.debug('polling status');
             if ($scope.widgetStatus.state !== STATE_STOPPED) { // keep polling until widget stops ==> mainly for timeleft..
-                WidgetsService.getStatus(widget, executionId).then(function (result) {
+                WidgetsService.getStatus(widget._id, executionId).then(function (result) {
                     if (!result) {
                         return;
                     }
@@ -75,8 +113,8 @@ angular.module('cloudifyWidgetUiApp')
         }
 
 
-        function _postPlayed (executionId) {
-            _postMessage({name: 'widget_played', executionId: executionId});
+        function _postPlayed () {
+            _postMessage({name: 'widget_played', executionId: $scope.executionId});
         }
 
         function _postStopped (executionId) {
@@ -116,5 +154,5 @@ angular.module('cloudifyWidgetUiApp')
         });
 
         parentLoaded();
-
+        $timeout(loadState,1);
     });

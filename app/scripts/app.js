@@ -133,7 +133,7 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
             })
             .when('/widgets/:widgetId/read', {
                 templateUrl: 'views/widget/read.html',
-                controller: 'WidgetCrudCtrl'
+                controller: 'AdminWidgetReadCtrl'
             })
             .when('/widgets/:widgetId/login/index', {
                 templateUrl: 'views/widget/login/index.html',

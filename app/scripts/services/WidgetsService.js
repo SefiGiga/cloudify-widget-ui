@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .service('WidgetsService', function WidgetsService($http) {
+    .service('WidgetsService', function WidgetsService($http, $log ) {
         this.deleteWidget = function (widget) {
             if (!confirm('are you sure you want to delete ' + widget.title)) {
                 return;
@@ -31,6 +31,7 @@ angular.module('cloudifyWidgetUiApp')
         };
 
         this.playWidget = function( widget, advancedParams, remote){
+            $log.info('playing widget');
             return $http.post('/backend/user/widgets/' + widget._id + '/play', {advancedParams: advancedParams, remote: remote} );
         };
 
@@ -38,8 +39,8 @@ angular.module('cloudifyWidgetUiApp')
             return $http.post('/backend/user/widgets/' + widget._id + '/executions/' + executionId + '/stop', {remote: remote});
         };
 
-        this.getStatus = function( widget, executionId ){
-            return $http.get('/backend/user/widgets/'  + widget._id + '/executions/' + executionId + '/status');
+        this.getStatus = function( widgetId, executionId ){
+            return $http.get('/backend/user/widgets/'  + widgetId + '/executions/' + executionId + '/status');
         };
 
         this.getOutput = function ( widget, executionId ) {

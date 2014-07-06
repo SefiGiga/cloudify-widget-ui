@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('WidgetViewCtrl', function ($scope, WidgetsService, $routeParams) {
+    .controller('WidgetViewCtrl', function ($scope, WidgetsService, $routeParams, $log) {
 
-        WidgetsService.getWidget($routeParams.widgetId).then(function (result) {
-            $scope.widget = result;
+        WidgetsService.getPublicWidget($routeParams.widgetId).then(function (result) {
+            $scope.widget = result.data;
         });
 
 
@@ -12,8 +12,11 @@ angular.module('cloudifyWidgetUiApp')
             if (!$scope.widget) {
                 return '';
             } else {
-                var widgetTheme = $scope.widget.theme || 'default';
+                $log.info('',$scope.widget.theme);
+                var widgetTheme = $routeParams.theme || $scope.widget.theme || 'default';
                 return 'views/widget/themes/' + widgetTheme + '.html';
             }
         };
+
+
     });

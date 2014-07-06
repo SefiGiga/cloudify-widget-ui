@@ -157,11 +157,6 @@ angular.module('cloudifyWidgetUiApp')
             redirectToWidgets();
         };
 
-
-        $scope.widgetAsJson = function () {
-            return JSON.stringify($scope.widget, {}, 4);
-        };
-
         $scope.view = function () {
             $scope.update().then(function () {
                 $location.path('/widgets/' + $scope.widget._id + '/read');

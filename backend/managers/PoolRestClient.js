@@ -145,8 +145,9 @@ function Call() {
             } else if (method === 'post') {
                 req = client.post(myUrl, myArgs, myCallback);
             }
-            req.on('error', function () {
+            req.on('error', function (e) {
                 logger.error('got request error', arguments);
+                callback(e);
             });
         } catch (e) {
             logger.error('got error from client', e);

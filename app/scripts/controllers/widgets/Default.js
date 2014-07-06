@@ -13,7 +13,7 @@
  *
  */
 angular.module('cloudifyWidgetUiApp')
-    .controller('WidgetsDefaultCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage/*, $timeout, $sce*/) {
+    .controller('WidgetsDefaultCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams) {
         $scope.widgetId = $routeParams.widgetId;
         $scope.currentTime = new Date().getTime();
 
@@ -76,7 +76,7 @@ angular.module('cloudifyWidgetUiApp')
 
         function _handleStatus(status) {
             $log.debug(['got status', status]);
-            $localStorage.widgetStatus = status;
+
             ellipsisIndex = ellipsisIndex + 1;
             $scope.widgetStatus = status;
             _scrollLog();
@@ -133,7 +133,7 @@ angular.module('cloudifyWidgetUiApp')
 //        };
 
 
-        WidgetsService.getWidget($routeParams.widgetId).then(function (result) {
+        WidgetsService.getPublicWidget($routeParams.widgetId).then(function (result) {
             $scope.widget = result.data;
         });
 
@@ -181,12 +181,7 @@ angular.module('cloudifyWidgetUiApp')
                 var data = e.data;
                 switch (data.name) {
                     case 'widget_status':
-                        if ($scope.widgetStatus.state !== STATE_STOPPED) {
-                            _handleStatus(data.data);
-                        } else {
-                            $log.debug('removing widget status from local storage');
-                            delete $localStorage.widgetStatus;
-                        }
+                        _handleStatus(data.data);
                         break;
                     case 'widget_played':
                         $scope.executionId = data.executionId;

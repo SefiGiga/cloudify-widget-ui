@@ -44,10 +44,15 @@ angular.module('cloudifyWidgetUiApp')
                 };
 
                 $scope.getIframeSrc = function () {
+                    var result = '';
                     if (!!$scope.widget && !!$scope.widget._id) {
-                        return $scope.getHost() + '/#/widgets/' + $scope.widget._id + '/view?timestamp=' + $scope.timestamp;
+                        result =  $scope.getHost() + '/#/widgets/' + $scope.widget._id + '/view?timestamp=' + $scope.timestamp;
                     }
-                    return '';
+
+                    if ( !!$scope.theme ){
+                        result += '&theme=' + $scope.theme;
+                    }
+                    return result;
                 };
 
 
