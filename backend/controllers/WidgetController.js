@@ -101,7 +101,7 @@ exports.delete = function (req, res) {
 };
 
 exports.play = function (req, res) {
-    logger.info('calling widget play for user id [%s], widget id [%s], remote [%s]', req.user._id, req.params.widgetId, req.body.remote);
+    logger.info('calling widget play for user id [%s], widget id [%s], remote [%s]', req.params.widgetId, req.body.remote);
 
     if (!req.params.widgetId) {
         logger.error('unable to play, no widget id found on request');
@@ -109,7 +109,7 @@ exports.play = function (req, res) {
         return;
     }
 
-    var playCallback = function (err, result) {
+    var playCallback = function playCallback (err, result) {
         if (!!err) {
             logger.error('play failed', err);
             res.send(500, {message: 'play failed', error: err});
@@ -123,18 +123,18 @@ exports.play = function (req, res) {
         }
 
         logger.info('widget play initiated successfully, execution id is [%s]', result);
-        res.send(200, result);
+        res.send(200, { 'executionId' : result } );
     };
 
     if (req.body.remote) {
-        managers.widget.playRemote(req.params.widgetId, req.user.poolKey, req.body.advancedParams, playCallback);
+        managers.widget.playRemote(req.params.widgetId, req.body.advancedParams, playCallback);
     } else {
-        managers.widget.play(req.params.widgetId, req.user.poolKey, playCallback);
+        managers.widget.play(req.params.widgetId, playCallback);
     }
 };
 
 exports.stop = function (req, res) {
-    logger.info('calling widget stop. user id [%s], widget id [%s], execution id [%s]', req.user._id, req.params.widgetId, req.params.executionId);
+    logger.info('calling widget stop. user id [%s], widget id [%s], execution id [%s]', req.params.widgetId, req.params.executionId);
 
     if (!req.params.widgetId) {
         logger.error('unable to stop widget, no widget id found on request');
@@ -148,7 +148,8 @@ exports.stop = function (req, res) {
         return;
     }
 
-    managers.widget.stop(req.params.widgetId, req.user.poolKey, req.params.executionId, req.body.remote, function (err, result) {
+
+    managers.widget.stop(req.params.widgetId, req.params.executionId, req.body.remote, function (err, result) {
         if (!!err) {
             logger.error('stop widget failed', err);
             res.send(500, {message: 'stop widget failed', error: err});
@@ -280,7 +281,7 @@ exports.getWidgetForPlayer = function (req, res) {
 };
 
 exports.getStatus = function (req, res) {
-    logger.info('calling widget get status. user id [%s], widget id [%s], execution id [%s]', req.user._id, req.params.widgetId, req.params.executionId);
+    logger.debug('calling widget get status. user id [%s], widget id [%s], execution id [%s]',  req.params.widgetId, req.params.executionId);
 
     if (!req.params.widgetId) {
         logger.error('unable to get output, no widget id found on request');

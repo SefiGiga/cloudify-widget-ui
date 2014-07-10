@@ -5,6 +5,16 @@
     "logsDir" : "/var/log/cloudify-widget/logs",
     "downloadsDir" : "/var/opt/cloudify-widget/downloads",
     "mongodbUrl": null,
+    "log4js" : {
+        "levels" : {
+            "WidgetManager" : "INFO" ,
+            "WidgetController" : "INFO"
+        },
+        "appenders": [
+            {  "level":"ERROR", "type":"console"}
+        ]
+
+    },
     "adminUser" : null,
     "linkedIn": {
         "apiKey" : "linkedin_api_key",

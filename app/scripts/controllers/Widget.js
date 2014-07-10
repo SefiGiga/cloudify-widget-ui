@@ -2,6 +2,7 @@
 
 angular.module('cloudifyWidgetUiApp')
     .controller('WidgetCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage, $timeout) {
+
         $log.info('loading widget controller');
         // we need to hold the running state to determine when to stop sending status/output messages back
         $scope.widgetStatus = {};
@@ -53,7 +54,7 @@ angular.module('cloudifyWidgetUiApp')
                 .then(function (result) {
                     $log.info(['play result', result]);
 
-                    $scope.executionId = result.data;
+                    $scope.executionId = result.data.executionId;
                     saveState();
 
                     _postPlayed($scope.executionId);
@@ -67,11 +68,12 @@ angular.module('cloudifyWidgetUiApp')
             _postMessage({'name' : 'widget_loaded'});
         }
 
-        function stop (widget, executionId, isRemoteBootstrap) {
-            WidgetsService.stopWidget(widget, executionId, isRemoteBootstrap).then(function () {
+        function stop (widget, executionId) {
+            WidgetsService.stopWidget($scope.widget, $scope.executionId ).then(function () {
                 deleteState();
                 _postStopped(executionId);
                 _resetWidgetStatus();
+                $scope.executionId = null;
             });
         }
 
@@ -140,10 +142,10 @@ angular.module('cloudifyWidgetUiApp')
             var data = e.data;
             switch (data.name) {
                 case 'widget_play':
-                    play(data.widget, data.advancedParams, data.isRemoteBootstrap);
+                    play($scope.widget/*, data.advancedParams, data.isRemoteBootstrap*/); // currently support only non remote execution
                     break;
                 case 'widget_stop':
-                    stop(data.widget, data.executionId, data.isRemoteBootstrap);
+                    stop();
                     break;
                 case 'parent_loaded' :
 
