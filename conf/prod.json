@@ -4,7 +4,6 @@
     "cloudifyExecutable" : "cloudify-folder/bin/cloudify.sh",
     "logsDir" : "/var/log/cloudify-widget/logs",
     "downloadsDir" : "/var/opt/cloudify-widget/downloads",
-    "mongodbUrl": null,
     "log4js" : {
         "levels" : {
             "WidgetManager" : "INFO" ,
@@ -15,7 +14,8 @@
         ]
 
     },
-    "adminUser" : null,
+    "mongodbUrl": "mongodb://127.0.0.1:27017/test",
+    "adminUser" : { "email" : "__admin_email__" , "password" : "__password__" , "poolKey" : "__poolKey__"},
     "linkedIn": {
         "apiKey" : "linkedin_api_key",
         "secretKey" : "linkedin_secret_key"
