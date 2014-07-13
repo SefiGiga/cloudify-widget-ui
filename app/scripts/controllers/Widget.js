@@ -139,7 +139,13 @@ angular.module('cloudifyWidgetUiApp')
                 $log.error('unable to handle posted message, no data was found');
                 return;
             }
+
             var data = e.data;
+
+            if ( typeof(data) === 'string'){
+                data = JSON.parse(data);
+            }
+
             switch (data.name) {
                 case 'widget_play':
                     play($scope.widget/*, data.advancedParams, data.isRemoteBootstrap*/); // currently support only non remote execution
