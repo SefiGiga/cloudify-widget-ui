@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('cloudifyWidgetUiApp')
-    .controller('WidgetCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage, $timeout) {
+    .controller('WidgetCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage, $timeout, WidgetConstants) {
         $log.info('loading widget controller');
         // we need to hold the running state to determine when to stop sending status/output messages back
         $scope.widgetStatus = {};
@@ -10,41 +10,40 @@ angular.module('cloudifyWidgetUiApp')
 
 
         // when there's an executionId, lets start polling...
-        $scope.$watch('executionId', function( newValue, oldValue ){
+        $scope.$watch('executionId', function (newValue, oldValue) {
             $log.info('executionId changed', newValue, oldValue);
-            if ( !!newValue && !oldValue ){
+            if (!!newValue && !oldValue) {
                 $log.info('detected executionId exists, starting poll');
                 $scope.widgetStatus.state = STATE_RUNNING;
-                _pollStatus(1, { '_id' : $scope.widgetId }, newValue);
+                _pollStatus(1, { '_id': $scope.widgetId }, newValue);
             }
 
-            if ( !newValue ){
+            if (!newValue) {
                 _resetWidgetStatus();
             }
         });
 
-        $scope.widget =  {  '_id' : $routeParams.widgetId };
+        $scope.widget = {  '_id': $routeParams.widgetId };
         $scope.executionId = null;
 
-        function saveState(){
-            localStorage.setItem( $scope.widget._id, $scope.executionId  );
+        function saveState() {
+            localStorage.setItem($scope.widget._id, $scope.executionId);
         }
 
-        function deleteState(){
-            localStorage.removeItem( $scope.widget._id );
+        function deleteState() {
+            localStorage.removeItem($scope.widget._id);
         }
 
-        function loadState(){
-            var executionId = localStorage.getItem( $scope.widget._id );
-            if ( !!executionId ){
+        function loadState() {
+            var executionId = localStorage.getItem($scope.widget._id);
+            if (!!executionId) {
                 $log.info('resuming execution.. found execution in local storage');
                 $scope.executionId = executionId;
             }
         }
 
 
-
-        function play (widget, advancedParams, isRemoteBootstrap) {
+        function play(widget, advancedParams, isRemoteBootstrap) {
             $log.info('playing widget');
             _resetWidgetStatus();
             $scope.widgetStatus.state = STATE_RUNNING;
@@ -62,12 +61,12 @@ angular.module('cloudifyWidgetUiApp')
                 });
         }
 
-        function parentLoaded(){
+        function parentLoaded() {
             $log.info('posting widget_loaded message');
-            _postMessage({'name' : 'widget_loaded'});
+            _postMessage({'name': 'widget_loaded'});
         }
 
-        function stop (widget, executionId, isRemoteBootstrap) {
+        function stop(widget, executionId, isRemoteBootstrap) {
             WidgetsService.stopWidget(widget, executionId, isRemoteBootstrap).then(function () {
                 deleteState();
                 _postStopped(executionId);
@@ -84,12 +83,14 @@ angular.module('cloudifyWidgetUiApp')
 
         function _handleStatus(status, myTimeout, widget, executionId) {
 
-            if ( !!status && !!status.output ) {
+            if (!!status && !!status.output) {
                 status.output = status.output.split('\n');
             }
             $scope.widgetStatus = status;
             _postStatus(status);
-            $timeout( function(){ _pollStatus(false, widget, executionId); }, myTimeout || 3000);
+            $timeout(function () {
+                _pollStatus(false, widget, executionId);
+            }, myTimeout || 3000);
         }
 
         function _pollStatus(myTimeout, widget, executionId) {
@@ -108,25 +109,24 @@ angular.module('cloudifyWidgetUiApp')
 
         // post outgoing messages
 
-        function _postStatus (status) {
+        function _postStatus(status) {
             _postMessage({name: 'widget_status', data: status});
         }
 
 
-        function _postPlayed () {
+        function _postPlayed() {
             _postMessage({name: 'widget_played', executionId: $scope.executionId});
         }
 
-        function _postStopped (executionId) {
+        function _postStopped(executionId) {
             _postMessage({name: 'widget_stopped', executionId: executionId});
         }
 
         function _postMessage(data) {
-            if ( $window.parent !== $window ) {
+            if ($window.parent !== $window) {
                 $window.parent.postMessage(data, /*$window.location.origin*/ '*');
             }
         }
-
 
 
 //        $log.debug('listening to messages on ', $window);
@@ -138,21 +138,21 @@ angular.module('cloudifyWidgetUiApp')
                 return;
             }
             var data = e.data;
-            switch (data.name) {
-                case 'widget_play':
-                    play(data.widget, data.advancedParams, data.isRemoteBootstrap);
-                    break;
-                case 'widget_stop':
-                    stop(data.widget, data.executionId, data.isRemoteBootstrap);
-                    break;
-                case 'parent_loaded' :
 
-                    break;
-                default:
-                    break;
+            if (data.name === WidgetConstants.PLAY) {
+                play(data.widget, data.advancedParams, data.isRemoteBootstrap);
             }
+
+            if (data.name === WidgetConstants.STOP) {
+                stop(data.widget, data.executionId, data.isRemoteBootstrap);
+            }
+
+            // this is here because JSHint fails at switch case indentation so it was converted to if statements.
+            if (data.name === WidgetConstants.PARENT_LOADED) {
+            }
+
         });
 
         parentLoaded();
-        $timeout(loadState,1);
+        $timeout(loadState, 1);
     });
