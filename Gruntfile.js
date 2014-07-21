@@ -10,6 +10,7 @@ var mountFolder = function (connect, dir) {
 
 
 module.exports = function (grunt) {
+
     require('time-grunt')(grunt);
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
@@ -317,7 +318,8 @@ module.exports = function (grunt) {
                             '.htaccess',
                             'bower_components/**/*',
                             'images/**/*.{gif,webp,svg}',
-                            'styles/fonts/*'
+                            'styles/fonts/*',
+                            'scripts/controllers/Widget.js'
                         ]
                     },
                     {

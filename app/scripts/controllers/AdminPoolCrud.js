@@ -77,6 +77,7 @@ angular.module('cloudifyWidgetUiApp')
             $log.debug('deletePoolErrors, poolId: ', poolId);
             AdminPoolCrudService.deletePoolErrors(poolId).then(function (/*result*/) {
                 $scope.getPoolErrors(poolId);
+                toastr.success('cleared all errors');
             });
         };
 

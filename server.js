@@ -7,16 +7,21 @@ var express = require('express');
 var controllers = require('./backend/controllers');
 var logger = require('log4js').getLogger('server');
 var managers = require('./backend/managers');
+
 var middleware = require('./backend/middleware');
 
 var passport = require('passport');
-//var conf = require('./backend/Conf');
+var conf = require('./backend/Conf');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
 var errorHandler = require('errorhandler');
 
+if ( !!conf.log4js ){
+    logger.info('configuring');
+    require('log4js').configure(conf.log4js);
+}
 
 var app = module.exports = express();
 
@@ -71,9 +76,12 @@ domain.run(function () {
     app.post('/backend/user/widgets/:widgetId/delete', controllers.widgets.delete);
     app.get('/backend/user/widgets/:widgetId', controllers.widgets.read);
     app.post('/backend/user/widgets/:widgetId/update', controllers.widgets.update);
-    app.post('/backend/user/widgets/:widgetId/play', controllers.widgets.play);
-    app.post('/backend/user/widgets/:widgetId/executions/:executionId/stop', controllers.widgets.stop);
-    app.get('/backend/user/widgets/:widgetId/executions/:executionId/status', controllers.widgets.getStatus);
+
+
+    // public urls for playing the widget
+    app.post('/backend/widgets/:widgetId/play', controllers.widgets.play);
+    app.post('/backend/widgets/:widgetId/executions/:executionId/stop', controllers.widgets.stop);
+    app.get('/backend/widgets/:widgetId/executions/:executionId/status', controllers.widgets.getStatus);
 //    app.get('/backend/user/widgets/:widgetId/executions/:executionId/output', controllers.widgets.getOutput);
 // a route to check if user logged in. relies on middleware to do the actual verification.
     app.get('/backend/user/loggedIn', function (req, res) {

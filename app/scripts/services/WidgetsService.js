@@ -32,15 +32,15 @@ angular.module('cloudifyWidgetUiApp')
 
         this.playWidget = function( widget, advancedParams, remote){
             $log.info('playing widget');
-            return $http.post('/backend/user/widgets/' + widget._id + '/play', {advancedParams: advancedParams, remote: remote} );
+            return $http.post('/backend/widgets/' + widget._id + '/play', {advancedParams: advancedParams, remote: remote} );
         };
 
-        this.stopWidget = function( widget, executionId, remote ){
-            return $http.post('/backend/user/widgets/' + widget._id + '/executions/' + executionId + '/stop', {remote: remote});
+        this.stopWidget = function( widget, executionId ){
+            return $http.post('/backend/widgets/' + widget._id + '/executions/' + executionId + '/stop');
         };
 
         this.getStatus = function( widgetId, executionId ){
-            return $http.get('/backend/user/widgets/'  + widgetId + '/executions/' + executionId + '/status');
+            return $http.get('/backend/widgets/'  + widgetId + '/executions/' + executionId + '/status');
         };
 
         this.getOutput = function ( widget, executionId ) {

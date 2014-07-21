@@ -15,11 +15,8 @@ exports.getPublicUserDetails = function (user) {
 
 
 exports.findById = function (userId, callback) {
-    if (typeof(userId) ===  'string') {
-        dbManager.id(userId);
-    }
     dbManager.connect('users', function (db, collection, done) {
-        collection.findOne({_id: dbManager.toObjectId(userId)}, function (err, result) {
+        collection.findOne({_id: dbManager.id(userId)}, function (err, result) {
 
             if (!!err) {
                 done();

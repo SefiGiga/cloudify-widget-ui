@@ -168,9 +168,11 @@ angular.module('cloudifyWidgetUiApp')
             return WidgetsService.updateWidget($scope.widget).then(
                 function success() {
                     $log.info('successfully updated the widget');
+                    toastr.info('successfully updated the widget');
 
                 },
                 function error() {
+                    toastr.error('unknown error');
                     $log.error('unable to update the widget');
                 }
             );

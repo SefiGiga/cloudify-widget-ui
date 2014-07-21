@@ -15,26 +15,6 @@ function getTempSuffix() {
     return currTime.substring(currTime.length - 4);
 }
 
-function handlePathSeparators( installPath ){
-    if( path.sep === '\\' ){
-        logger.info( '-WIN !!!' );
-        var array = installPath.split('\\');
-        if( array ){
-            logger.info('-ARRAY !!!', array );
-            installPath = '';
-            for( var i=0; i < array.length; i++ ) {
-                installPath += array[i];
-                if( i !== array.length - 1 ){
-                    installPath += '/';
-                }
-            }
-        }
-    }
-
-    return installPath;
-}
-
-
 function _getWidget(curryParams, curryCallback) {
     logger.trace('-play- getWidget');
     managers.db.connect('widgets', function (db, collection, done) {
@@ -60,11 +40,35 @@ function _getWidget(curryParams, curryCallback) {
     });
 }
 
+function _getPoolKey( curryParams, curryCallback ){
+    logger.info('getting user from widget');
+    managers.db.connect('users', function( db, collection ){
+        collection.findOne({ '_id' : curryParams.widget.userId }, function(err, result){
+            if ( !!err ){
+                logger.error('unable to find user from widget', err);
+                curryCallback(err, curryParams);
+                return;
+            }
+
+            if ( !result ){
+                logger.error('result is null for widget');
+                curryCallback(new Error('could not find user for widget'), curryParams);
+                return;
+            }
+
+            logger.info('found poolKey', result.poolKey);
+            curryParams.poolKey = result.poolKey;
+            curryCallback(null, curryParams);
+        });
+    });
+}
+
 function _createExecutionModel(curryParams, curryCallback) {
     logger.trace('-play- createExecutionModel');
     managers.db.connect('widgetExecutions', function (db, collection, done) {
         // instantiate the execution model with the widget data, and remove the _id - we want mongodb to generate a unique id
-        var executionModel = _.omit(curryParams.widget, '_id');
+        var executionModel = {};
+        executionModel.widget = curryParams.widget;
         collection.insert(executionModel, function (err, docsInserted) {
             if (!!err) {
                 logger.error('failed creating widget execution model', err);
@@ -304,13 +308,12 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
     logger.info('-playRemote- runCliBootstrapCommand, executionLogsPath:', curryParams.executionLogsPath,'installCommand:', curryParams.widget.recipeType.installCommand);
     logger.info('-playRemote- runCliBootstrapCommand, executionDownloadsPath:', curryParams.executionDownloadsPath,'recipeRootPath:', curryParams.widget.recipeRootPath);
 
-    var installPath = path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath);
+    var installPath = path.resolve(path.join(curryParams.executionDownloadsPath, curryParams.widget.recipeRootPath));
     var installTimeout = curryParams.widget.installTimeout;
 
     logger.info('-playRemote waterfall- installTimeout:', installTimeout );
 
     logger.info('-playRemote waterfall- runCliBootstrapCommand, JOIN:', installPath );
-    installPath = handlePathSeparators( installPath );
     logger.info('-installPath after handlingseparators:', installPath );
     var command = {
         arguments: [
@@ -333,54 +336,23 @@ function _runBootstrapAndInstallCommands(curryParams, curryCallback) {
     curryCallback(null, curryParams);
 }
 
-function _removeExecutionModel(executionId, callback) {
-    var executionObjectId;
-    try {
-        // make sure it's an ObjectID and not an ID string
-        executionObjectId = managers.db.toObjectId(executionId);
-    } catch (e) {
-        callback(e);
-        return;
-    }
-
-    logger.info('removing execution model with id [%s]', executionObjectId.toHexString());
-    managers.db.connect('widgetExecutions', function (db, collection, done) {
-        collection.remove({ _id: executionObjectId }, function (err, result) {
-
-            if (!!err) {
-                callback(err);
-                done();
-                return;
-            }
-
-            if (!result) {
-                callback(new Error('unable to remove execution model'));
-                done();
-                return;
-            }
-
-            callback(null, result);
-            done();
-        });
-    });
-}
 
 function _playFinally(err, curryParams) {
 
 
     if (!!err) {
 //        logger.error('failed to play widget with id [%s]', curryParams.widgetId);
-        _removeExecutionModel(curryParams.executionObjectId, curryParams.playCallback);
         curryParams.playCallback(err);
         return;
     }
     logger.trace('-play- finished !');
-    logger.info('result is ', curryParams);
+//    logger.info('result is ', curryParams);
 
     curryParams.playCallback(null, curryParams.executionObjectId.toHexString());
 }
 
 function _getExecutionModel(curryParams, curryCallback) {
+
 
     managers.db.connect('widgetExecutions', function (db, collection, done) {
         collection.findOne({_id: managers.db.toObjectId(curryParams.executionId)}, function (err, result) {
@@ -406,7 +378,8 @@ function _getExecutionModel(curryParams, curryCallback) {
 
 function _expireNode(curryParams, curryCallback) {
 
-    managers.poolClient.expirePoolNode(curryParams.poolKey, curryParams.executionModel.poolId, curryParams.executionModel.nodeModel.id, function (err/*, result*/) {
+
+    managers.poolClient.expirePoolNode(curryParams.poolKey, curryParams.executionModel.widget.poolId, curryParams.executionModel.nodeModel.id, function (err/*, result*/) {
 
         if (!!err) {
             curryCallback(err, curryParams);
@@ -417,22 +390,10 @@ function _expireNode(curryParams, curryCallback) {
     });
 }
 
-function _waterfallRemoveExecutionModel(curryParams, curryCallback) {
-
-    _removeExecutionModel(curryParams.executionId, function (err/*, result*/) {
-
-        if (!!err) {
-            curryCallback(err, curryParams);
-            return;
-        }
-
-        curryCallback(null, curryParams);
-    });
-}
 
 function _stopFinally(err, curryParams) {
     logger.trace('-stop- finished !');
-    logger.info('result is ', curryParams);
+//    logger.info('result is ', curryParams);
 
     if (!!err) {
         logger.error('failed to stop widget with id [%s]', curryParams.widgetId);
@@ -443,50 +404,20 @@ function _stopFinally(err, curryParams) {
     curryParams.stopCallback(null, {});
 }
 
-
-
-
-
-function _readLog(executionId, logFn, callback) {
-    managers.db.connect('widgetExecutions', function (db, collection, done) {
-        collection.findOne({_id: managers.db.toObjectId(executionId)}, function (err, result) {
-
-            if (!!err) {
-                callback(err);
-                done();
-                return;
-            }
-
-            if (!result) {
-                callback(new Error('unable to get log. cannot find execution model with id [' + executionId + ']'));
-                done();
-                return;
-            }
-
-            logFn(executionId, callback);
-            done();
-        });
-    });
-}
-
-function _readOutputLog(executionId, callback) {
-    _readLog(executionId, services.logs.readOutput, callback);
-}
-
-
-exports.play = function (widgetId, poolKey, playCallback) {
+exports.play = function (widgetId, playCallback) {
 
     async.waterfall([
 
             function initCurryParams(callback) {
                 var initialCurryParams = {
                     widgetId: widgetId,
-                    poolKey: poolKey,
+
                     playCallback: playCallback
                 };
                 callback(null, initialCurryParams);
             },
             _getWidget,
+            _getPoolKey,
             _createExecutionModel,
             _updateExecutionModelAddPaths,
             _downloadRecipe,
@@ -528,7 +459,8 @@ exports.playRemote = function (widgetId, poolKey, advancedParams, playCallback) 
     );
 };
 
-exports.stop = function (widgetId, poolKey, executionId, remote, stopCallback) {
+exports.stop = function (widgetId, executionId, remote, stopCallback) {
+
 
     var tasks = [
 
@@ -536,13 +468,14 @@ exports.stop = function (widgetId, poolKey, executionId, remote, stopCallback) {
             var initialCurryParams = {
                 widgetId: widgetId,
                 executionId: executionId,
-                poolKey: poolKey,
+
                 stopCallback: stopCallback
             };
             callback(null, initialCurryParams);
         },
-        _getExecutionModel,
-        _waterfallRemoveExecutionModel
+        _getWidget,
+        _getPoolKey,
+        _getExecutionModel
     ];
 
     // if execution is not on a remote machine, the node is in the pool - add a task to expire it
@@ -554,38 +487,59 @@ exports.stop = function (widgetId, poolKey, executionId, remote, stopCallback) {
     );
 };
 
+function getPublicExecutionDetails( execution ){
+    return {
+        'widget' : _.omit(execution.widget,['userId']),
+        'nodeModel' : _.merge(_.pick(execution.nodeModel,['id']), {'publicIp' : execution.nodeModel.machineSshDetails.publicIp }),
+        'exitStatus' : execution.exitStatus,
+        'output' : execution.output
+    };
+}
+
 exports.getStatus = function (executionId, callback) {
-
-    managers.db.connect('widgetExecutions', function (db, collection, done) {
-        collection.findOne({_id: managers.db.toObjectId(executionId)}, function (err, result) {
-
+    logger.debug('getting status', callback);
+    managers.db.connect('widgetExecutions', function (db, collection) {
+        collection.findOne({_id: managers.db.toObjectId(executionId)}, function (err, execution) {
 //            logger.debug('get status result: ', result);
             if (!!err) {
                 callback(err);
-                done();
                 return;
             }
 
-            if (!result) {
-                callback(null, {state: 'STOPPED'});
-                done();
+            if (!execution) {
+                callback('execution not found',null);
                 return;
             }
 
-            callback(null, {state: 'RUNNING'});
-            done();
+            // add the status from cli execution (0 or 1)..
+            // if this exists on the execution status, we know execution ended.
+            //
+            logger.debug('reading status');
+            services.logs.readStatus(executionId, function(err, exitStatus){
+                logger.debug('read status');
+                if ( !err && !!exitStatus ){
+                    if ( typeof( exitStatus) === 'string'){
+                        exitStatus = JSON.parse(exitStatus);
+                    }
+                    execution.exitStatus = exitStatus;
+                }
+                services.logs.readOutput(executionId, function(err, output){
+                    execution.output = output;
+                    logger.debug('getting public details');
+                    var publicExecutionDetails = getPublicExecutionDetails(execution);
+                    logger.debug('public details are', publicExecutionDetails) ;
+                    callback(null, publicExecutionDetails);
+                });
+
+            });
         });
     });
 
 };
 
 exports.getOutput = function (executionId, callback) {
-    _readOutputLog(executionId, callback);
+    services.logs.readOutput(executionId,callback);
 };
-
-
-
-
 
 
 exports.findById = function( widgetId , callback ){
