@@ -175,7 +175,7 @@ function _occupyMachine(curryParams, curryCallback) {
             return;
         }
 
-        var resultObj = result;
+        var resultObj = result; // todo: callbackWrapper makes this obsolete
         if (typeof result === 'string') {
             try {
                 resultObj = JSON.parse(result);

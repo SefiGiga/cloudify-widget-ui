@@ -260,7 +260,7 @@ exports.expirePoolNode = function (poolKey, poolId, nodeId, callback) {
     call.post('/account/pools/${poolId}/nodes/${nodeId}/expire', _args().poolKey(poolKey).poolId(poolId).nodeId(nodeId), callback);
 };
 exports.occupyPoolNode = function (poolKey, poolId, expires, callback) {
-    logger.info('occupying machine in pool');
+    logger.info('occupying machine in pool'); // todo: cahnge to post
     call.get('/account/pools/${poolId}/occupy', _args().poolKey(poolKey).poolId(poolId).data( expires + ''), callback);
 };
 
