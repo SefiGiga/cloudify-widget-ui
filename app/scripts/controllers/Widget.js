@@ -28,7 +28,7 @@ angular.module('cloudifyWidgetUiApp')
         $scope.executionId = null;
 
         function saveState(){
-            localStorage.setItem( $scope.widget._id, $scope.executionId  );
+            localStorage.setItem( $scope.widget._id, JSON.stringify($scope.executionId) );
         }
 
         function deleteState(){
@@ -36,7 +36,7 @@ angular.module('cloudifyWidgetUiApp')
         }
 
         function loadState(){
-            var executionId = localStorage.getItem( $scope.widget._id );
+            var executionId = JSON.parse(localStorage.getItem( $scope.widget._id ));
             if ( !!executionId ){
                 $log.info('resuming execution.. found execution in local storage');
                 $scope.executionId = executionId;
