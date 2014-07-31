@@ -16,7 +16,7 @@ angular.module('cloudifyWidgetUiApp')
             if ( !!newValue && !oldValue ){
                 $log.info('detected executionId exists, starting poll');
                 $scope.widgetStatus.state = STATE_RUNNING;
-                _pollStatus(1, { '_id' : $scope.widgetId }, newValue);
+                _pollStatus(1, { '_id' : $scope.widget._id }, newValue.executionId);
             }
 
             if ( !newValue ){
