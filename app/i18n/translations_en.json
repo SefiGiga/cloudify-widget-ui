@@ -1,0 +1,13 @@
+{
+
+    "buttons": {
+        "submit": "Submit"
+    },
+    "login" : {
+        "username": "Username:",
+        "password": "Password:",
+        "noAccount": "Don't have an account?",
+        "signup": "Signup"
+    }
+
+}
