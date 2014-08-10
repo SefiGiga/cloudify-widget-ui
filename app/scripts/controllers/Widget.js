@@ -2,7 +2,8 @@
 
 angular.module('cloudifyWidgetUiApp')
     .controller('WidgetCtrl', function ($scope, LoginTypesService, WidgetsService, $log, $window, $routeParams, PostParentService, $localStorage, $timeout, WidgetConstants) {
-        $log.info('loading widget controller');
+
+        $log.info('loading widget controller : ' + new Date().getTime());
         // we need to hold the running state to determine when to stop sending status/output messages back
         $scope.widgetStatus = {};
         var STATE_RUNNING = 'RUNNING';
@@ -15,7 +16,7 @@ angular.module('cloudifyWidgetUiApp')
             if ( !!newValue && !oldValue ){
                 $log.info('detected executionId exists, starting poll');
                 $scope.widgetStatus.state = STATE_RUNNING;
-                _pollStatus(1, { '_id' : $scope.widgetId }, newValue);
+                _pollStatus(1, { '_id' : $scope.widget._id }, newValue.executionId);
             }
 
             if ( !newValue ){
@@ -27,7 +28,7 @@ angular.module('cloudifyWidgetUiApp')
         $scope.executionId = null;
 
         function saveState(){
-            localStorage.setItem( $scope.widget._id, $scope.executionId  );
+            localStorage.setItem( $scope.widget._id, JSON.stringify($scope.executionId) );
         }
 
         function deleteState(){
@@ -35,7 +36,7 @@ angular.module('cloudifyWidgetUiApp')
         }
 
         function loadState(){
-            var executionId = localStorage.getItem( $scope.widget._id );
+            var executionId = JSON.parse(localStorage.getItem( $scope.widget._id ));
             if ( !!executionId ){
                 $log.info('resuming execution.. found execution in local storage');
                 $scope.executionId = executionId;
