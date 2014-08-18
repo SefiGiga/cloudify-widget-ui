@@ -186,7 +186,7 @@ angular.module('cloudifyWidgetUiApp', ['ngCookies', 'ngRoute', 'ngStorage', 'ngR
         $logProvider.debugEnabled(false);
     })
     .run(function(I18next, $rootScope) {
-        $rootScope.$watch('currentLanguage', function(newVal, oldVal) {
+        $rootScope.$watch('currentLanguage', function(newVal/*, oldVal*/) {
             I18next.setOptions({lng: newVal});
         });
 

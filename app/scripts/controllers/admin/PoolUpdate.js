@@ -12,7 +12,7 @@ angular.module('cloudifyWidgetUiApp')
             var tempPool = JSON.parse($scope.pool.poolSettingsStr);
             tempPool.bootstrapProperties.script ?
                 $scope.pool.bootstrapScript = JSON.stringify( JSON.parse(tempPool.bootstrapProperties.script), {}, 4) :
-                $scope.pool.bootstrapScript = "";
+                $scope.pool.bootstrapScript = '';
             tempPool.bootstrapProperties.script = undefined;
             $scope.pool.poolSettingsStr = JSON.stringify( tempPool, {}, 4);
         });
@@ -22,7 +22,7 @@ angular.module('cloudifyWidgetUiApp')
             if (!tempPool.bootstrapProperties) {
                 tempPool.bootstrapProperties = {};
             }
-            tempPool.bootstrapProperties.script = poolBootstrapScriptStr || "";
+            tempPool.bootstrapProperties.script = poolBootstrapScriptStr || '';
             poolSettingsStr = JSON.stringify(tempPool);
 
             // update with new data
@@ -36,12 +36,12 @@ angular.module('cloudifyWidgetUiApp')
                 function success(result) {
                     $scope.pool.bootstrapProperties.script = result.data;
                 },
-                function error(cause) {
-                    $scope.pool.bootstrapProperties.script = "";
-                    $log.error("Retrieve default script failed.");
+                function error(/*cause*/) {
+                    $scope.pool.bootstrapProperties.script = '';
+                    $log.error('Retrieve default script failed.');
                 }
             );
-        }
+        };
 
 
 
