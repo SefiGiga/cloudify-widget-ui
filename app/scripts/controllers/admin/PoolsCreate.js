@@ -5,7 +5,7 @@ angular.module('cloudifyWidgetUiApp')
 
         $scope.accountId = $routeParams.accountId;
         $scope.bootstrapScript = {
-            value: ""
+            value: ''
         };
 
         $scope.addAccountPool = function (accountId, poolSettings, bootstrapScript) {
@@ -13,7 +13,7 @@ angular.module('cloudifyWidgetUiApp')
             if (!tempPool.bootstrapProperties) {
                 tempPool.bootstrapProperties = {};
             }
-            tempPool.bootstrapProperties.script = bootstrapScript || "";
+            tempPool.bootstrapProperties.script = bootstrapScript || '';
             poolSettings = JSON.stringify(tempPool);
 
             AdminPoolCrudService.addAccountPool(accountId, poolSettings).then(function (/*result*/) {
@@ -26,10 +26,10 @@ angular.module('cloudifyWidgetUiApp')
                 function success(result) {
                     $scope.bootstrapScript.value = result.data;
                 },
-                function error(cause) {
-                    $scope.bootstrapScript.value = "";
-                    $log.error("Retrieve default script failed.");
+                function error(/*cause*/) {
+                    $scope.bootstrapScript.value = '';
+                    $log.error('Retrieve default script failed.');
                 }
             );
-        }
+        };
     });
