@@ -319,6 +319,7 @@ module.exports = function (grunt) {
                             'bower_components/**/*',
                             'images/**/*.{gif,webp,svg}',
                             'styles/fonts/*',
+                            'i18n/*',
                             'scripts/controllers/Widget.js'
                         ]
                     },
