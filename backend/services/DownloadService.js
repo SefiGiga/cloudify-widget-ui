@@ -15,7 +15,9 @@ exports.downloadRecipe = function (options, callback) {
         }
 
         if (!cloudifyRecipeUrl) {
-            throw new Error('Cloudify Recipe url parameter is missing');
+//            throw new Error('Cloudify Recipe url parameter is missing');
+            logger.info('Cloudify Recipe url parameter is missing, nothing to download');
+            callback(null);
         }
 
         logger.debug('making destination dir [' + destDir + ']');
