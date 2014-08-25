@@ -34,10 +34,10 @@ angular.module('cloudifyWidgetUiApp')
         $scope.getBootstrapScript = function() {
             AdminPoolCrudService.getBootstrapScript().then(
                 function success(result) {
-                    $scope.pool.bootstrapProperties.script = result.data;
+                    $scope.pool.bootstrapScript = result.data;
                 },
                 function error(/*cause*/) {
-                    $scope.pool.bootstrapProperties.script = '';
+                    $scope.pool.bootstrapScript = '';
                     $log.error('Retrieve default script failed.');
                 }
             );
