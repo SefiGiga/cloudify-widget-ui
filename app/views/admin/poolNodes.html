@@ -11,6 +11,7 @@
                 <th>Pool Settings ID</th>
                 <th>Machine Status</th>
                 <th>Machine SSH Details</th>
+                <th>Expires in</th>
                 <th colspan="2">Actions</th>
             </tr>
         </thead>
@@ -21,6 +22,7 @@
                 <td>{{ node.poolId }}</td>
                 <td>{{ node.nodeStatus }}</td>
                 <td><pre>{{ asJson(node.machineSshDetails) | json }}</pre></td>
+                <td>{{ node.expires | date :'medium'ׂ}} </td>
                 <td>
                     <button ng-if="node.id" ng-click="bootstrapPoolNode(model.poolId, node.id)">bootstrap node</button>
                 </td>
