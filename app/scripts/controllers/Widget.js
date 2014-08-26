@@ -69,7 +69,7 @@ angular.module('cloudifyWidgetUiApp')
         }
 
         function stop (widget, executionId) {
-            WidgetsService.stopWidget($scope.widget, $scope.executionId ).then(function () {
+            WidgetsService.stopWidget($scope.widget, $scope.executionId.executionId).then(function () {
                 deleteState();
                 _postStopped(executionId);
                 _resetWidgetStatus();
