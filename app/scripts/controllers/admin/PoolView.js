@@ -6,6 +6,8 @@ angular.module('cloudifyWidgetUiApp')
         $scope.accountId = $routeParams.accountId;
         $scope.poolId = $routeParams.poolId;
 
+        $scope.predicate = 'id';
+        $scope.reverse = true;
 
         $scope.model = {
             accountId: $routeParams.accountId,
